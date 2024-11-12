@@ -13,7 +13,7 @@ Este catálogo traz uma lista dos principais test smells conhecidos em outras li
 ## 🎯 Objetivo do Catálogo
 
 O catálogo visa:
-- 📖 **Definir e descrever** os 19 test smells mais comuns, com exemplos práticos para cada um.
+- 📖 **Definir e descrever** os test smells mais comuns, com exemplos práticos para cada um.
 - 🛠 **Oferecer critérios de identificação** para facilitar a detecção de cada smell nos testes.
 - ✨ **Sugerir abordagens de correção** e boas práticas, ajudando você a manter seus testes claros, robustos e de fácil manutenção.
 - 📊 **Proporcionar uma visão mais profunda** sobre o impacto de cada smell na qualidade do código e da manutenção.
