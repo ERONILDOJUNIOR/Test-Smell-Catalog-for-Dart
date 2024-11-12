@@ -30,7 +30,28 @@ Ferramentas de análise de código podem ser configuradas para detectar testes e
 ### Exemplo com Verbose Test
 
 ```dart
-void testCalculateTotalPrice() {
+import 'package:flutter_test/flutter_test.dart';
+
+class ShoppingCart {
+  List<Item> items = [];
+  int get totalItems => items.length;
+  int get totalPrice => items.fold(0, (sum, item) => sum + item.price);
+  bool get isValid => totalItems > 0;
+  
+  void add(Item item) {
+    items.add(item);
+  }
+
+  bool hasDiscount() => totalPrice > 50;
+}
+
+class Item {
+  int price;
+  Item({required this.price});
+}
+
+// Exemplo com Verbose Test
+void testCalculateTotalPriceVerbose() {
   var cart = ShoppingCart();
   
   // Adicionando itens manualmente um a um
@@ -40,30 +61,54 @@ void testCalculateTotalPrice() {
   cart.add(item2);
 
   // Realizando verificações detalhadas
-  assert(cart.totalItems == 2);
-  assert(cart.totalPrice == 30);
-  assert(cart.isValid == true);
-  assert(cart.hasDiscount() == false);
-  assert(cart.items.contains(item1));
-  assert(cart.items.contains(item2));
+  expect(cart.totalItems, 2);
+  expect(cart.totalPrice, 30);
+  expect(cart.isValid, isTrue);
+  expect(cart.hasDiscount(), isFalse);
+  expect(cart.items.contains(item1), isTrue);
+  expect(cart.items.contains(item2), isTrue);
 
   // Limpeza manual de objetos (excessivo aqui)
   item1 = null;
   item2 = null;
 }
+
+
 ```
 
 ### Exemplo sem Verbose Test
 
 ```dart
+import 'package:flutter_test/flutter_test.dart';
+
+class ShoppingCart {
+  List<Item> items = [];
+  int get totalItems => items.length;
+  int get totalPrice => items.fold(0, (sum, item) => sum + item.price);
+  bool get isValid => totalItems > 0;
+  
+  void add(Item item) {
+    items.add(item);
+  }
+
+  bool hasDiscount() => totalPrice > 50;
+}
+
+class Item {
+  int price;
+  Item({required this.price});
+}
+
+// Exemplo sem Verbose Test
 void testCalculateTotalPrice() {
   var cart = ShoppingCart();
   cart.add(Item(price: 10));
   cart.add(Item(price: 20));
 
-  assert(cart.totalPrice == 30, "Expected total price to be 30");
-  assert(cart.totalItems == 2, "Expected total items to be 2");
+  expect(cart.totalPrice, 30, reason: "Expected total price to be 30");
+  expect(cart.totalItems, 2, reason: "Expected total items to be 2");
 }
+
 ```
 
 ---
