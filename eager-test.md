@@ -30,46 +30,94 @@ Ferramentas de análise estática podem ser usadas para detectar testes excessiv
 ### Exemplo com Eager Test
 
 ```dart
-void testUserRegistration() {
-  var user = User(name: "John", email: "john@example.com");
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  test('Teste de Registro do Usuário', () {
+    var user = User(name: "John", email: "john@example.com");
   
-  user.register();
+    user.register();
   
-  assert(user.name == "John");
-  assert(user.email == "john@example.com");
-  assert(user.isRegistered == true);
-  assert(user.hasValidEmail == true);
-  assert(user.hasValidPassword == true);
-  assert(user.registrationDate != null); // Testa muitas condições ao mesmo tempo
+    expect(user.name, equals("John"));
+    expect(user.email, equals("john@example.com"));
+    expect(user.isRegistered, isTrue);
+    expect(user.hasValidEmail, isTrue);
+    expect(user.hasValidPassword, isTrue);
+    expect(user.registrationDate, isNotNull); // Testa muitas condições ao mesmo tempo
+  });
 }
+
+class User {
+  final String name;
+  final String email;
+  bool isRegistered = false;
+  bool hasValidEmail = true;
+  bool hasValidPassword = true;
+  DateTime? registrationDate;
+
+  User({required this.name, required this.email});
+
+  void register() {
+    isRegistered = true;
+    registrationDate = DateTime.now();
+  }
+}
+
 ```
 
 ### Exemplo sem Eager Test
 
 ```dart
-void testUserName() {
-  var user = User(name: "John", email: "john@example.com");
-  
-  user.register();
-  
-  assert(user.name == "John");
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  test('Teste de Nome do Usuário', () {
+    var user = User(name: "John", email: "john@example.com");
+    
+    user.register();
+    
+    expect(user.name, equals("John"));
+  });
+
+  test('Teste de Email do Usuário', () {
+    var user = User(name: "John", email: "john@example.com");
+    
+    user.register();
+    
+    expect(user.email, equals("john@example.com"));
+  });
+
+  test('Teste de Status de Registro do Usuário', () {
+    var user = User(name: "John", email: "john@example.com");
+    
+    user.register();
+    
+    expect(user.isRegistered, isTrue);
+  });
+
+  test('Teste de Data de Registro do Usuário', () {
+    var user = User(name: "John", email: "john@example.com");
+    
+    user.register();
+    
+    expect(user.registrationDate, isNotNull);
+  });
 }
 
-void testUserEmail() {
-  var user = User(name: "John", email: "john@example.com");
-  
-  user.register();
-  
-  assert(user.email == "john@example.com");
+class User {
+  final String name;
+  final String email;
+  bool isRegistered = false;
+  DateTime? registrationDate;
+
+  User({required this.name, required this.email});
+
+  void register() {
+    isRegistered = true;
+    registrationDate = DateTime.now();
+  }
 }
 
-void testUserRegistrationStatus() {
-  var user = User(name: "John", email: "john@example.com");
-  
-  user.register();
-  
-  assert(user.isRegistered == true);
-}
 ```
 
 ---
