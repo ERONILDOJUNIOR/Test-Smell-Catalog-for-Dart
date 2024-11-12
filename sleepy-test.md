@@ -27,20 +27,53 @@ Alguns linters podem ser configurados para detectar o uso de comandos `sleep` em
 ### Exemplo com Sleepy Test
 
 ```dart
-void testDataFetch() async {
-  await dataFetcher.fetchData();
-  await Future.delayed(Duration(seconds: 5)); // Aguarda por um tempo fixo
-  assert(dataFetcher.isDataLoaded);
+import 'package:test/test.dart';
+
+void main() {
+  test('Sleepy Test - Fixed Delay', () async {
+    final dataFetcher = DataFetcher();
+    await dataFetcher.fetchData();
+    
+    // Espera fixa de 5 segundos
+    await Future.delayed(Duration(seconds: 5)); 
+    expect(dataFetcher.isDataLoaded, isTrue, reason: 'Data should be loaded after 5 seconds');
+  });
 }
+
+class DataFetcher {
+  bool isDataLoaded = false;
+  
+  Future<void> fetchData() async {
+    await Future.delayed(Duration(seconds: 3)); // Simula um delay de carregamento
+    isDataLoaded = true;
+  }
+}
+
 ```
 
 ### Exemplo sem Sleepy Test
 
 ```dart
-void testDataFetch() async {
-  await dataFetcher.fetchData();
-  await waitFor(() => dataFetcher.isDataLoaded); // Aguarda uma condição específica
-  assert(dataFetcher.isDataLoaded);
+import 'package:test/test.dart';
+
+void main() {
+  test('Optimized Test - Wait for Condition', () async {
+    final dataFetcher = DataFetcher();
+    await dataFetcher.fetchData();
+
+    // Espera pela condição, sem um tempo fixo
+    await waitFor(() => dataFetcher.isDataLoaded); 
+    expect(dataFetcher.isDataLoaded, isTrue, reason: 'Data should be loaded once fetch completes');
+  });
+}
+
+class DataFetcher {
+  bool isDataLoaded = false;
+
+  Future<void> fetchData() async {
+    await Future.delayed(Duration(seconds: 3)); // Simula um delay de carregamento
+    isDataLoaded = true;
+  }
 }
 
 Future<void> waitFor(Function condition) async {
@@ -48,6 +81,7 @@ Future<void> waitFor(Function condition) async {
     await Future.delayed(Duration(milliseconds: 100));
   }
 }
+
 ```
 
 ---
