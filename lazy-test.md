@@ -30,32 +30,79 @@ Ferramentas de análise estática e linters avançados podem sinalizar testes co
 ### Exemplo com Lazy Test
 
 ```dart
-void testAddItem() {
-  final cart = ShoppingCart();
-  cart.add(Item(price: 10));
-  assert(cart.totalItems == 1);
+import 'package:flutter_test/flutter_test.dart';
+
+class Item {
+  final double price;
+  Item({required this.price});
 }
+
+class ShoppingCart {
+  final List<Item> items = [];
+
+  void add(Item item) {
+    items.add(item);
+  }
+
+  int get totalItems => items.length;
+  double get totalPrice => items.fold(0, (sum, item) => sum + item.price);
+  bool get isValid => totalPrice > 0;
+  bool get isEmpty => items.isEmpty;
+}
+
+void main() {
+  test('Lazy Test - Adicionar Item ao Carrinho', () {
+    final cart = ShoppingCart();
+    cart.add(Item(price: 10));
+    
+    assert(cart.totalItems == 1);  // Testa apenas uma coisa: o total de itens
+  });
+}
+
 ```
 
 ### Exemplo sem Lazy Test
 
 ```dart
-void testAddItem() {
-  final cart = ShoppingCart();
-  cart.add(Item(price: 10));
-  
-  // Verifica o total de itens
-  assert(cart.totalItems == 1, "Total de itens deveria ser 1 após adicionar um item");
-  
-  // Verifica o preço total
-  assert(cart.totalPrice == 10, "Total price should be updated correctly after adding an item");
-  
-  // Verifica a validade do carrinho
-  assert(cart.isValid, "Cart should be valid after adding a valid item");
-  
-  // Cenário de borda: verifica se o carrinho não está vazio
-  assert(!cart.isEmpty, "Cart should not be empty after adding an item");
+import 'package:flutter_test/flutter_test.dart';
+
+class Item {
+  final double price;
+  Item({required this.price});
 }
+
+class ShoppingCart {
+  final List<Item> items = [];
+
+  void add(Item item) {
+    items.add(item);
+  }
+
+  int get totalItems => items.length;
+  double get totalPrice => items.fold(0, (sum, item) => sum + item.price);
+  bool get isValid => totalPrice > 0;
+  bool get isEmpty => items.isEmpty;
+}
+
+void main() {
+  test('Teste Completo - Adicionar Item ao Carrinho', () {
+    final cart = ShoppingCart();
+    cart.add(Item(price: 10));
+    
+    // Verifica o total de itens
+    assert(cart.totalItems == 1, "Total de itens deveria ser 1 após adicionar um item");
+    
+    // Verifica o preço total
+    assert(cart.totalPrice == 10, "Total price should be updated correctly after adding an item");
+    
+    // Verifica a validade do carrinho
+    assert(cart.isValid, "Cart should be valid after adding a valid item");
+    
+    // Cenário de borda: verifica se o carrinho não está vazio
+    assert(!cart.isEmpty, "Cart should not be empty after adding an item");
+  });
+}
+
 ```
 
 ---
