@@ -28,36 +28,19 @@ Ferramentas de análise de teste podem ser configuradas para detectar dependênc
 ### Exemplo com Dependent Test
 
 ```dart
-void testLogin() {
-  var user = createUser();  // Depende do sucesso de outro teste que cria o usuário
-  var session = createSession(user);  // Depende do sucesso de createUser()
-  assert(session.isActive);  // Falha se createUser() ou createSession() falharem
-}
+import 'package:flutter_test/flutter_test.dart';
 
-void testCreateUser() {
-  var user = createUser();  // Teste que cria o usuário
-  assert(user != null, "User should be created successfully");
-}
+void main() {
+  test('Teste de Login', () {
+    var user = createUser();  // Depende do sucesso de outro teste que cria o usuário
+    var session = createSession(user);  // Depende do sucesso de createUser()
+    expect(session.isActive, isTrue, reason: "A sessão deveria estar ativa");
+  });
 
-User createUser() {
-  // Lógica para criar um usuário
-  return User(name: "John");
-}
-
-Session createSession(User user) {
-  // Lógica para criar uma sessão para o usuário
-  return Session(user);
-}
-
-```
-
-### Exemplo sem Dependent Test
-
-```dart
-void testLogin() {
-  var user = User(name: "John");
-  var session = Session(user);
-  assert(session.isActive, "Session should be active after user logs in");
+  test('Teste de Criação de Usuário', () {
+    var user = createUser();  // Teste que cria o usuário
+    expect(user, isNotNull, reason: "Usuário deveria ser criado com sucesso");
+  });
 }
 
 class User {
@@ -69,8 +52,45 @@ class Session {
   final User user;
   Session(this.user);
 
-  bool get isActive => true;  // Simula a sessão ativa
+  bool get isActive => true;
 }
+
+User createUser() {
+  return User(name: "John");
+}
+
+Session createSession(User user) {
+  return Session(user);
+}
+
+
+```
+
+### Exemplo sem Dependent Test
+
+```dart
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  test('Teste de Login', () {
+    var user = User(name: "John");
+    var session = Session(user);
+    expect(session.isActive, isTrue, reason: "A sessão deve estar ativa após o login do usuário");
+  });
+}
+
+class User {
+  final String name;
+  User({required this.name});
+}
+
+class Session {
+  final User user;
+  Session(this.user);
+
+  bool get isActive => true;
+}
+
 
 ```
 
