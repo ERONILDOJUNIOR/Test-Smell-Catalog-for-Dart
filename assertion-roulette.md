@@ -29,27 +29,33 @@ Ferramentas de análise estática e linters podem ser configuradas para verifica
 ### Exemplo com Assertion Roulette
 
 ```dart
-void testCalculateTotalPrice() {
-  final cart = ShoppingCart();
-  cart.add(Item(price: 10));
-  cart.add(Item(price: 20));
+import 'package:flutter_test/flutter_test.dart';
+import 'package:my_app/my_widget.dart';
 
-  assert(cart.totalPrice == 30);
-  assert(cart.totalItems == 2);
-  assert(cart.isValid);  // Falha possível sem explicação clara
+void main() {
+  testWidgets('Verifica o MyWidget', (WidgetTester tester) async {
+    await tester.pumpWidget(MyWidget());
+
+    expect(find.text('Título'), findsOneWidget);
+    expect(find.byIcon(Icons.add), findsOneWidget);
+    expect(find.byType(TextButton), findsOneWidget); // Falha possível sem explicação clara
+  });
 }
 ```
 ### Exemplo sem Assertion Roulette
 
 ```dart
-void testCalculateTotalPrice() {
-  final cart = ShoppingCart();
-  cart.add(Item(price: 10));
-  cart.add(Item(price: 20));
+import 'package:flutter_test/flutter_test.dart';
+import 'package:my_app/my_widget.dart';
 
-  assert(cart.totalPrice == 30, "Total price should be 30 after adding two items");
-  assert(cart.totalItems == 2, "Total items should be 2 after adding two items");
-  assert(cart.isValid, "Cart should be valid after adding valid items");
+void main() {
+  testWidgets('Verifica o MyWidget', (WidgetTester tester) async {
+    await tester.pumpWidget(MyWidget());
+
+    expect(find.text('Título'), findsOneWidget, reason: "Deve exibir o texto 'Título'");
+    expect(find.byIcon(Icons.add), findsOneWidget, reason: "Deve conter um ícone de adicionar");
+    expect(find.byType(TextButton), findsOneWidget, reason: "Deve conter um botão do tipo TextButton");
+  });
 }
 ```
 ## 🚀 Correções Sugeridas
