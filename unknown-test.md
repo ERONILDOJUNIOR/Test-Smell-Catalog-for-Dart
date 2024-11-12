@@ -28,22 +28,50 @@ Ferramentas de análise estática podem ser usadas para detectar testes com nome
 ### Exemplo com Unknown Test
 
 ```dart
+import 'package:flutter_test/flutter_test.dart';
+
 void test() {
   var result = someFunction();
-  assert(result == true); // Teste vago sem contexto claro sobre o que está sendo testado
+  expect(result, isTrue); // Teste vago sem contexto
 }
+
+bool someFunction() {
+  return true; // Função de exemplo para retornar um valor booleano
+}
+
 ```
 
 ### Exemplo sem Unknown Test
 
 ```dart
+import 'package:flutter_test/flutter_test.dart';
+
 void testCalculateDiscount() {
   var cart = ShoppingCart();
   cart.addItem(Item(price: 100));
   var discount = cart.calculateDiscount();
   
-  assert(discount == 10, "Expected discount to be 10% of the total price");
+  expect(discount, 10, reason: "Expected discount to be 10% of the total price");
 }
+
+class ShoppingCart {
+  List<Item> items = [];
+
+  void addItem(Item item) {
+    items.add(item);
+  }
+
+  int calculateDiscount() {
+    int total = items.fold(0, (sum, item) => sum + item.price);
+    return (total * 0.1).toInt(); // Desconto de 10%
+  }
+}
+
+class Item {
+  int price;
+  Item({required this.price});
+}
+
 ```
 
 ---
