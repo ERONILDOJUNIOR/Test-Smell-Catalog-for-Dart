@@ -27,29 +27,71 @@ Ferramentas de análise de código e linters podem ser configuradas para identif
 ### Exemplo com Redundant Assertion
 
 ```dart
-void testCartTotal() {
-  final cart = ShoppingCart();
-  cart.add(Item(price: 10));
-  cart.add(Item(price: 20));
+import 'package:test/test.dart';
 
-  assert(cart.totalPrice == 30);
-  assert(cart.totalPrice == 30);  // Repetição desnecessária
-  assert(cart.totalItems == 2);
-  assert(cart.totalItems == 2);  // Repetição desnecessária
+void main() {
+  test('Redundant Assertion Test', () {
+    final cart = ShoppingCart();
+    cart.add(Item(price: 10));
+    cart.add(Item(price: 20));
+
+    expect(cart.totalPrice, equals(30));
+    expect(cart.totalPrice, equals(30));  // Repetição desnecessária
+    expect(cart.totalItems, equals(2));
+    expect(cart.totalItems, equals(2));  // Repetição desnecessária
+  });
 }
+
+class ShoppingCart {
+  final List<Item> items = [];
+
+  void add(Item item) {
+    items.add(item);
+  }
+
+  double get totalPrice => items.fold(0, (sum, item) => sum + item.price);
+  int get totalItems => items.length;
+}
+
+class Item {
+  final double price;
+  Item({required this.price});
+}
+
 ```
 
 ### Exemplo sem Redundant Assertion
 
 ```dart
-void testCartTotal() {
-  final cart = ShoppingCart();
-  cart.add(Item(price: 10));
-  cart.add(Item(price: 20));
+import 'package:test/test.dart';
 
-  assert(cart.totalPrice == 30, "Total price should be 30 after adding items");
-  assert(cart.totalItems == 2, "Total items should be 2 after adding items");
+void main() {
+  test('Cart Total without Redundant Assertion', () {
+    final cart = ShoppingCart();
+    cart.add(Item(price: 10));
+    cart.add(Item(price: 20));
+
+    expect(cart.totalPrice, equals(30), "Total price should be 30 after adding items");
+    expect(cart.totalItems, equals(2), "Total items should be 2 after adding items");
+  });
 }
+
+class ShoppingCart {
+  final List<Item> items = [];
+
+  void add(Item item) {
+    items.add(item);
+  }
+
+  double get totalPrice => items.fold(0, (sum, item) => sum + item.price);
+  int get totalItems => items.length;
+}
+
+class Item {
+  final double price;
+  Item({required this.price});
+}
+
 ```
 
 ---
