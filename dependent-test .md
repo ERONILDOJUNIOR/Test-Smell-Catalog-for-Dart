@@ -29,18 +29,26 @@ Ferramentas de análise de teste podem ser configuradas para detectar dependênc
 
 ```dart
 void testLogin() {
-  var user = createUser();
-  var session = createSession(user);
-  assert(session.isActive);  // Depende da criação do usuário e sessão em outros testes
+  var user = createUser();  // Depende do sucesso de outro teste que cria o usuário
+  var session = createSession(user);  // Depende do sucesso de createUser()
+  assert(session.isActive);  // Falha se createUser() ou createSession() falharem
 }
 
-void createUser() {
+void testCreateUser() {
+  var user = createUser();  // Teste que cria o usuário
+  assert(user != null, "User should be created successfully");
+}
+
+User createUser() {
   // Lógica para criar um usuário
+  return User(name: "John");
 }
 
-void createSession(user) {
+Session createSession(User user) {
   // Lógica para criar uma sessão para o usuário
+  return Session(user);
 }
+
 ```
 
 ### Exemplo sem Dependent Test
@@ -51,6 +59,19 @@ void testLogin() {
   var session = Session(user);
   assert(session.isActive, "Session should be active after user logs in");
 }
+
+class User {
+  final String name;
+  User({required this.name});
+}
+
+class Session {
+  final User user;
+  Session(this.user);
+
+  bool get isActive => true;  // Simula a sessão ativa
+}
+
 ```
 
 ---
