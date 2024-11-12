@@ -29,20 +29,59 @@ Para identificar o **Mystery Guest**, procure por:
 ### Exemplo com Mystery Guest
 
 ```dart
-void testUserProfile() {
-  final userProfile = fetchUserProfile();
-  assert(userProfile.name == "Alice"); // Depende de um usuário "Alice" configurado no banco de dados
+import 'package:test/test.dart';
+
+void main() {
+  test('User Profile with Mystery Guest', () {
+    final userProfile = fetchUserProfile();  // Depende de um usuário "Alice" configurado externamente
+    expect(userProfile.name, equals("Alice"));
+  });
 }
+
+UserProfile fetchUserProfile() {
+  // Simula a recuperação do perfil de um usuário de um banco de dados externo
+  // Aqui, a suposição é de que "Alice" é um usuário existente
+  return UserProfile(name: "Alice");
+}
+
+class UserProfile {
+  final String name;
+  UserProfile({required this.name});
+}
+
 ```
 
 ### Exemplo sem Mystery Guest
 
 ```dart
-void testUserProfile() {
-  final testUser = User(id: 1, name: "Alice");
-  final userProfile = fetchUserProfile(testUser.id);
-  assert(userProfile.name == testUser.name, "Expected user name to be Alice for test user with ID 1");
+import 'package:test/test.dart';
+
+void main() {
+  test('User Profile without Mystery Guest', () {
+    final testUser = User(id: 1, name: "Alice");
+    final userProfile = fetchUserProfile(testUser.id);
+    
+    expect(userProfile.name, equals(testUser.name), "Expected user name to be Alice for test user with ID 1");
+  });
 }
+
+UserProfile fetchUserProfile(int userId) {
+  // Retorna um perfil de usuário simulado para o teste, sem dependência externa
+  return UserProfile(id: userId, name: "Alice");
+}
+
+class User {
+  final int id;
+  final String name;
+  User({required this.id, required this.name});
+}
+
+class UserProfile {
+  final int id;
+  final String name;
+  UserProfile({required this.id, required this.name});
+}
+
 ```
 
 ---
