@@ -27,48 +27,60 @@ A análise estática pode identificar construtores com lógicas de inicializaç�
 ### Exemplo com Constructor Initialization
 
 ```dart
-class ShoppingCart {
-  double totalAmount;
-  double discount;
+import 'package:flutter_test/flutter_test.dart';
 
-  ShoppingCart(double amount) {
-    totalAmount = amount;
+class ShoppingCart {
+  final double totalAmount;
+  final double discount;
+
+  ShoppingCart(double amount)
+      : totalAmount = amount,
+        discount = (amount > 100) ? 0.1 : 0 {
     // Lógica complexa no construtor
-    if (totalAmount > 100) {
-      discount = 0.1;
-    } else {
-      discount = 0;
-    }
-    // Mais validações e configurações
     if (totalAmount < 0) {
       throw ArgumentError('Amount cannot be negative');
     }
+    // Mais validações e configurações podem ser aplicadas
   }
 }
 
-void testShoppingCartDiscount() {
-  var cart = ShoppingCart(150);
-  assert(cart.discount == 0.1);
+void main() {
+  test('Aplica desconto no carrinho para valor acima de 100', () {
+    final cart = ShoppingCart(150);
+    expect(cart.discount, 0.1, reason: "O desconto deve ser de 10% para valores acima de 100");
+  });
 }
+
+
 ```
 
 ### Exemplo sem Constructor Initialization
 
 ```dart
+import 'package:flutter_test/flutter_test.dart';
+
 class ShoppingCart {
-  double totalAmount;
-  double discount;
+  final double totalAmount;
+  double discount = 0;
 
-  ShoppingCart(this.totalAmount) : discount = totalAmount > 100 ? 0.1 : 0;
+  ShoppingCart(this.totalAmount);
 
-  // Inicialização simplificada no construtor
+  void applyDiscount() {
+    if (totalAmount < 0) {
+      throw ArgumentError('Amount cannot be negative');
+    }
+    discount = totalAmount > 100 ? 0.1 : 0;
+  }
 }
 
-void testShoppingCartDiscount() {
-  var cart = ShoppingCart(150);
-  assert(cart.discount == 0.1);
+void main() {
+  test('Aplica desconto no carrinho para valor acima de 100', () {
+    final cart = ShoppingCart(150);
+    cart.applyDiscount();
+    expect(cart.discount, 0.1, reason: "O desconto deve ser de 10% para valores acima de 100");
+  });
 }
-```
+
 
 ---
 
