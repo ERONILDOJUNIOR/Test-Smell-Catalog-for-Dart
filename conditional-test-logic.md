@@ -27,29 +27,39 @@ Ferramentas de análise estática podem ser configuradas para identificar testes
 ### Exemplo com Conditional Test Logic
 
 ```dart
-void testCalculateDiscount() {
-  final cart = ShoppingCart(totalAmount: 50);
+import 'package:flutter_test/flutter_test.dart';
 
-  if (cart.totalAmount > 100) {
-    assert(cart.discount == 0.1); // Só é executado se a condição for verdadeira
-  } else {
-    assert(cart.discount == 0); // Se a condição não for verdadeira, o teste pode passar sem verificar todas as possibilidades
-  }
+void main() {
+  test('Calcula o desconto com lógica condicional', () {
+    final cart = ShoppingCart(totalAmount: 50);
+
+    if (cart.totalAmount > 100) {
+      expect(cart.discount, 0.1); // Só é executado se a condição for verdadeira
+    } else {
+      expect(cart.discount, 0); // Pode passar sem verificar todas as possibilidades
+    }
+  });
 }
+
 ```
 
 ### Exemplo sem Conditional Test Logic
 
 ```dart
-void testCalculateDiscountForHighAmount() {
-  final cart = ShoppingCart(totalAmount: 150);
-  assert(cart.discount == 0.1, "Discount should be 10% for cart amounts over 100");
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  test('Calcula desconto para valor acima de 100', () {
+    final cart = ShoppingCart(totalAmount: 150);
+    expect(cart.discount, 0.1, reason: "Desconto deve ser 10% para valores acima de 100");
+  });
+
+  test('Calcula desconto para valor igual ou abaixo de 100', () {
+    final cart = ShoppingCart(totalAmount: 50);
+    expect(cart.discount, 0, reason: "Desconto deve ser 0 para valores iguais ou abaixo de 100");
+  });
 }
 
-void testCalculateDiscountForLowAmount() {
-  final cart = ShoppingCart(totalAmount: 50);
-  assert(cart.discount == 0, "Discount should be 0 for cart amounts of 100 or less");
-}
 ```
 
 ---
