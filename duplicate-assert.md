@@ -29,22 +29,42 @@ Ferramentas de análise estática e linters podem ser usadas para identificar as
 ### Exemplo com Duplicate Assert
 
 ```dart
-void testUserName() {
-  var user = User(name: "John");
-  
-  assert(user.name == "John");
-  assert(user.name == "John");  // Redundante
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  test('Teste de Nome de Usuário', () {
+    var user = User(name: "John");
+
+    expect(user.name, equals("John"));
+    expect(user.name, equals("John"));  // Redundante
+  });
 }
+
+class User {
+  final String name;
+  User({required this.name});
+}
+
 ```
 
 ### Exemplo sem Duplicate Assert
 
 ```dart
-void testUserName() {
-  var user = User(name: "John");
-  
-  assert(user.name == "John");
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  test('Teste de Nome de Usuário', () {
+    var user = User(name: "John");
+
+    expect(user.name, equals("John"));
+  });
 }
+
+class User {
+  final String name;
+  User({required this.name});
+}
+
 ```
 
 ---
