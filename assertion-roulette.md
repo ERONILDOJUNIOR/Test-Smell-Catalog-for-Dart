@@ -38,3 +38,18 @@ void testCalculateTotalPrice() {
   assert(cart.totalItems == 2);
   assert(cart.isValid);  // Falha possível sem explicação clara
 }
+```
+### Exemplo sem Assertion Roulette
+
+```dart
+void testCalculateTotalPrice() {
+  final cart = ShoppingCart();
+  cart.add(Item(price: 10));
+  cart.add(Item(price: 20));
+
+  assert(cart.totalPrice == 30, "Total price should be 30 after adding two items");
+  assert(cart.totalItems == 2, "Total items should be 2 after adding two items");
+  assert(cart.isValid, "Cart should be valid after adding valid items");
+}
+```
+
