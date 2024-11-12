@@ -29,28 +29,70 @@ Linters e ferramentas de análise estática, como `dart analyze`, podem ser conf
 ### Exemplo com Redundant Print
 
 ```dart
-void testCalculateTotal() {
-  final cart = ShoppingCart();
-  cart.add(Item(price: 10));
-  cart.add(Item(price: 20));
+import 'package:test/test.dart';
+
+void main() {
+  test('Redundant Print Test', () {
+    final cart = ShoppingCart();
+    cart.add(Item(price: 10));
+    cart.add(Item(price: 20));
   
-  print("Total Price: ${cart.totalPrice}");
-  print("Total Items: ${cart.totalItems}");
-  assert(cart.totalPrice == 30);
+    print("Total Price: ${cart.totalPrice}");
+    print("Total Items: ${cart.totalItems}");
+    expect(cart.totalPrice, equals(30));
+  });
 }
+
+class ShoppingCart {
+  final List<Item> items = [];
+
+  void add(Item item) {
+    items.add(item);
+  }
+
+  double get totalPrice => items.fold(0, (sum, item) => sum + item.price);
+  int get totalItems => items.length;
+}
+
+class Item {
+  final double price;
+  Item({required this.price});
+}
+
 ```
 
 ### Exemplo sem Redundant Print
 
 ```dart
-void testCalculateTotal() {
-  final cart = ShoppingCart();
-  cart.add(Item(price: 10));
-  cart.add(Item(price: 20));
+import 'package:test/test.dart';
 
-  assert(cart.totalPrice == 30, "Total price should be 30 after adding items");
-  assert(cart.totalItems == 2, "Total items should be 2 after adding items");
+void main() {
+  test('Calculate Total without Redundant Print', () {
+    final cart = ShoppingCart();
+    cart.add(Item(price: 10));
+    cart.add(Item(price: 20));
+
+    expect(cart.totalPrice, equals(30), "Total price should be 30 after adding items");
+    expect(cart.totalItems, equals(2), "Total items should be 2 after adding items");
+  });
 }
+
+class ShoppingCart {
+  final List<Item> items = [];
+
+  void add(Item item) {
+    items.add(item);
+  }
+
+  double get totalPrice => items.fold(0, (sum, item) => sum + item.price);
+  int get totalItems => items.length;
+}
+
+class Item {
+  final double price;
+  Item({required this.price});
+}
+
 ```
 
 ---
