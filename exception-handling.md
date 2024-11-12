@@ -30,21 +30,42 @@ Ferramentas de análise estática e linters podem ser configuradas para detectar
 ### Exemplo com Exception Handling incorreto
 
 ```dart
-void testDivideByZero() {
-  var result = divide(10, 0); // Exceção esperada, mas não verificada
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  test('Teste de Divisão por Zero', () {
+    var result = divide(10, 0); // Exceção esperada, mas não verificada
+  });
 }
+
+double divide(int a, int b) {
+  return a / b;
+}
+
 ```
 
 ### Exemplo com Exception Handling correto
 
 ```dart
-void testDivideByZero() {
-  try {
-    var result = divide(10, 0);
-  } catch (e) {
-    assert(e is DivisionByZeroException, "Expected a DivisionByZeroException");
-  }
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  test('Teste de Divisão por Zero', () {
+    try {
+      var result = divide(10, 0);
+    } catch (e) {
+      assert(e is IntegerDivisionByZeroException, "Esperava-se uma IntegerDivisionByZeroException");
+    }
+  });
 }
+
+double divide(int a, int b) {
+  if (b == 0) {
+    throw IntegerDivisionByZeroException();
+  }
+  return a / b;
+}
+
 ```
 
 ---
