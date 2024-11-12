@@ -27,21 +27,32 @@ Alguns linters e ferramentas de análise de código podem ajudar a identificar o
 ### Exemplo com Resource Optimism
 
 ```dart
-void testFileRead() {
-  final file = File('config.txt');  // Depende da presença de um arquivo externo
-  final content = file.readAsStringSync();
-  assert(content.contains('settings'));
+import 'dart:io';
+import 'package:test/test.dart';
+
+void main() {
+  test('File Read with Resource Optimism', () {
+    final file = File('config.txt');  // Depende da presença de um arquivo externo
+    final content = file.readAsStringSync();
+    expect(content.contains('settings'), isTrue, "File content should contain settings information");
+  });
 }
+
 ```
 
 ### Exemplo sem Resource Optimism
 
 ```dart
-void testFileRead() {
-  // Usa um mock para simular a presença do arquivo
-  final fileContent = 'settings: true';
-  assert(fileContent.contains('settings'), "File content should contain settings information");
+import 'package:test/test.dart';
+
+void main() {
+  test('File Read without Resource Optimism', () {
+    // Usa um mock para simular a presença do arquivo
+    final fileContent = 'settings: true';
+    expect(fileContent.contains('settings'), isTrue, "File content should contain settings information");
+  });
 }
+
 ```
 
 ---
