@@ -52,4 +52,33 @@ void testCalculateTotalPrice() {
   assert(cart.isValid, "Cart should be valid after adding valid items");
 }
 ```
+## 🚀 Correções Sugeridas
+Para resolver o Assertion Roulette:
+
+- **Adicione Mensagens de Descrição**: Inclua mensagens para cada assert, explicando a condição esperada e o motivo da verificação.
+- **Reduza a Quantidade de Asserts**: Se possível, divida o teste em métodos menores para cada condição que esteja testando, o que melhora a clareza e torna o código mais modular.
+- **Utilize Mocks e Expectativas**: Em casos mais complexos, considere usar uma estrutura de mock para validar condições, permitindo que você utilize métodos de teste mais robustos, como `expect`.
+
+---
+
+## 🌟 Exceções e Casos Especiais
+Em testes simples ou triviais com um único assert, pode ser aceitável omitir uma mensagem de contexto. Contudo, para qualquer teste com múltiplas verificações, adicionar descrições é recomendado.
+
+---
+
+## 🛠 Ferramentas de Detecção
+- **Linter Configurável**: Ferramentas como `dart analyze` podem ser configuradas para verificar múltiplas afirmações em testes.
+- **Plugins para Test Smells**: Ferramentas de análise de código como **SonarQube** e **TSLint** (adaptado) podem ser usadas para monitorar múltiplas afirmações sem descrições.
+
+---
+
+## 📚 Referências e Estudos Relacionados
+- Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
+- Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
+- Van Deursen, A., et al. (2001). "Refactoring Test Code."
+
+---
+
+## 📝 Nota
+O Assertion Roulette é especialmente relevante em projetos complexos onde múltiplas condições são verificadas em cada teste. Este guia ajuda a garantir que cada falha seja clara e fácil de rastrear.
 
