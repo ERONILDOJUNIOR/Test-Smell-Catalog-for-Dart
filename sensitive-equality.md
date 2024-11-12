@@ -27,19 +27,37 @@ Alguns linters ou ferramentas de análise podem ser configurados para destacar c
 ### Exemplo com Sensitive Equality
 
 ```dart
-void testUserGreeting() {
-  final greeting = generateGreeting('Alice');
-  assert(greeting == 'Hello, Alice!'); // Falha se houver espaço extra ou variação na capitalização
+import 'package:test/test.dart';
+
+void main() {
+  test('Sensitive Equality in User Greeting', () {
+    final greeting = generateGreeting('Alice');
+    expect(greeting, equals('Hello, Alice!'), "Greeting should match exactly 'Hello, Alice!'");
+  });
 }
+
+String generateGreeting(String name) {
+  return 'Hello, $name!'; // Possível variação no formato, como espaços extras
+}
+
 ```
 
 ### Exemplo sem Sensitive Equality
 
 ```dart
-void testUserGreeting() {
-  final greeting = generateGreeting('Alice');
-  assert(greeting.toLowerCase().trim() == 'hello, alice!', "Greeting should match expected format");
+import 'package:test/test.dart';
+
+void main() {
+  test('Insensitive Equality in User Greeting', () {
+    final greeting = generateGreeting('Alice');
+    expect(greeting.toLowerCase().trim(), equals('hello, alice!'), "Greeting should match expected format");
+  });
 }
+
+String generateGreeting(String name) {
+  return ' Hello, $name! '; // Pode ter espaços extras ou capitalização diferente
+}
+
 ```
 
 ---
