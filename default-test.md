@@ -29,21 +29,45 @@ Ferramentas de análise estática podem identificar quando testes não estão ut
 ### Exemplo com Default Test
 
 ```dart
-void testDefaultValues() {
-  var user = User();
-  assert(user.name == ""); // Teste com valor padrão
-  assert(user.age == 0);    // Teste com valor padrão
+import 'package:flutter_test/flutter_test.dart';
+
+class User {
+  String name;
+  int age;
+
+  User({this.name = "", this.age = 0});
 }
+
+void main() {
+  test('Valores padrão do usuário', () {
+    final user = User();
+    expect(user.name, "", reason: "O nome padrão deve ser uma string vazia");
+    expect(user.age, 0, reason: "A idade padrão deve ser 0");
+  });
+}
+
 ```
 
 ### Exemplo sem Default Test
 
 ```dart
-void testUserCreation() {
-  var user = User(name: "John", age: 30);
-  assert(user.name == "John");
-  assert(user.age == 30);
+import 'package:flutter_test/flutter_test.dart';
+
+class User {
+  String name;
+  int age;
+
+  User({required this.name, required this.age});
 }
+
+void main() {
+  test('Criação de usuário com valores específicos', () {
+    final user = User(name: "John", age: 30);
+    expect(user.name, "John", reason: "O nome deve ser 'John'");
+    expect(user.age, 30, reason: "A idade deve ser 30");
+  });
+}
+
 ```
 
 ---
