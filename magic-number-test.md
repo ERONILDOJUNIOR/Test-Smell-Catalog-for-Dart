@@ -27,22 +27,41 @@ Ferramentas de análise estática podem sinalizar valores numéricos que aparece
 ### Exemplo com Magic Number Test
 
 ```dart
-void testCalculateDiscount() {
-  final discount = calculateDiscount(150);
-  assert(discount == 20);
+import 'package:test/test.dart';
+
+void main() {
+  test('Calculate Discount with Magic Numbers', () {
+    final discount = calculateDiscount(150);  // 150 é um número mágico
+    expect(discount, equals(20));  // 20 é um número mágico
+  });
 }
+
+int calculateDiscount(int basePrice) {
+  return basePrice * 0.1;  // Calcula o desconto com um valor fixo
+}
+
 ```
 
 ### Exemplo sem Magic Number Test
 
 ```dart
-void testCalculateDiscount() {
-  const int basePrice = 150;
-  const int expectedDiscount = 20;
-  
-  final discount = calculateDiscount(basePrice);
-  assert(discount == expectedDiscount, "Discount should be 20 for base price of 150");
+import 'package:test/test.dart';
+
+void main() {
+  test('Calculate Discount without Magic Numbers', () {
+    const int basePrice = 150;  // Definição clara do preço base
+    const int expectedDiscount = 20;  // Definição clara do desconto esperado
+    
+    final discount = calculateDiscount(basePrice);
+    expect(discount, equals(expectedDiscount), "Discount should be 20 for base price of 150");
+  });
 }
+
+int calculateDiscount(int basePrice) {
+  const double discountRate = 0.1;  // Taxa de desconto bem definida
+  return (basePrice * discountRate).toInt();  // Aplica o desconto baseado na taxa
+}
+
 ```
 
 ---
