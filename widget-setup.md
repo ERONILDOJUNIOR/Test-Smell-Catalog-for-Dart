@@ -37,40 +37,50 @@ Arquivo: `widget_setup_smell_with_smell.dart`
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class CustomWidget extends StatelessWidget {
-  final String title;
-  final int count;
-
-  const CustomWidget({required this.title, required this.count, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: Text(title)),
-        body: Center(
-          child: Text('Count: $count'),
+void main() {
+  testWidgets('Teste de título do widget 1', (WidgetTester tester) async {
+    // Configuração do widget repetida
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Text('Teste de título 1'),
         ),
       ),
     );
-  }
-}
 
-void main() {
-  testWidgets('Test with repeated widget setup - Case 1', (WidgetTester tester) async {
-    await tester.pumpWidget(const CustomWidget(title: 'Test Title 1', count: 10));
-
-    expect(find.text('Test Title 1'), findsOneWidget);
-    expect(find.text('Count: 10'), findsOneWidget);
+    expect(find.text('Teste de título 1'), findsOneWidget);
   });
 
-  testWidgets('Test with repeated widget setup - Case 2', (WidgetTester tester) async {
-    await tester.pumpWidget(const CustomWidget(title: 'Test Title 2', count: 20));
+  testWidgets('Teste de título do widget 2', (WidgetTester tester) async {
+    // Configuração do widget repetida
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Text('Teste de título 2'),
+        ),
+      ),
+    );
 
-    expect(find.text('Test Title 2'), findsOneWidget);
-    expect(find.text('Count: 20'), findsOneWidget);
+    expect(find.text('Teste de título 2'), findsOneWidget);
+  });
+
+  testWidgets('Teste de botão', (WidgetTester tester) async {
+    // Configuração do widget repetida
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ElevatedButton(
+            onPressed: () {},
+            child: Text('Pressione'),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Pressione'), findsOneWidget);
   });
 }
+
 ```
 
 ### Exemplo sem Widget Setup Smell
@@ -81,44 +91,43 @@ Arquivo: `widget_setup_smell_without_smell.dart`
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class CustomWidget extends StatelessWidget {
-  final String title;
-  final int count;
-
-  const CustomWidget({required this.title, required this.count, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: Text(title)),
-        body: Center(
-          child: Text('Count: $count'),
-        ),
-      ),
-    );
-  }
+// Método auxiliar para configurar o widget
+Widget buildTestWidget({required Widget child}) {
+  return MaterialApp(
+    home: Scaffold(
+      body: child,
+    ),
+  );
 }
 
 void main() {
-  Future<void> pumpCustomWidget(WidgetTester tester, String title, int count) async {
-    await tester.pumpWidget(CustomWidget(title: title, count: count));
-  }
+  testWidgets('Teste de título do widget 1', (WidgetTester tester) async {
+    // Reutilizando o método auxiliar
+    await tester.pumpWidget(buildTestWidget(child: Text('Teste de título 1')));
 
-  testWidgets('Test using helper method - Case 1', (WidgetTester tester) async {
-    await pumpCustomWidget(tester, 'Test Title 1', 10);
-
-    expect(find.text('Test Title 1'), findsOneWidget);
-    expect(find.text('Count: 10'), findsOneWidget);
+    expect(find.text('Teste de título 1'), findsOneWidget);
   });
 
-  testWidgets('Test using helper method - Case 2', (WidgetTester tester) async {
-    await pumpCustomWidget(tester, 'Test Title 2', 20);
+  testWidgets('Teste de título do widget 2', (WidgetTester tester) async {
+    // Reutilizando o método auxiliar
+    await tester.pumpWidget(buildTestWidget(child: Text('Teste de título 2')));
 
-    expect(find.text('Test Title 2'), findsOneWidget);
-    expect(find.text('Count: 20'), findsOneWidget);
+    expect(find.text('Teste de título 2'), findsOneWidget);
+  });
+
+  testWidgets('Teste de botão', (WidgetTester tester) async {
+    // Reutilizando o método auxiliar
+    await tester.pumpWidget(buildTestWidget(
+      child: ElevatedButton(
+        onPressed: () {},
+        child: Text('Pressione'),
+      ),
+    ));
+
+    expect(find.text('Pressione'), findsOneWidget);
   });
 }
+
 ```
 
 ---
