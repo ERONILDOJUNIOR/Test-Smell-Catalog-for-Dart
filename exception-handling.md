@@ -1,7 +1,7 @@
 # Exception Handling
 
 ## 🔍 Descrição do Problema
-**Exception Handling** ocorre quando os testes não lidam corretamente com exceções ou falhas esperadas durante a execução de um teste. Pode envolver a falta de captura e verificação das exceções ou o uso incorreto delas. Isso pode resultar em falhas não detectadas no código de produção, pois o comportamento do sistema não é verificado adequadamente em condições excepcionais.
+**Exception Handling** isso ocorre quando um método de teste depende de uma exceção ser lançada pelo método de produção/teste, em vez de usar os recursos do framework de testes. Pode envolver a falta de captura e verificação das exceções ou o uso incorreto delas.
 
 Testes que não verificam corretamente as exceções podem levar a lacunas significativas na cobertura de testes e comprometem a confiança no sistema.
 
@@ -17,53 +17,74 @@ Testes que não verificam corretamente as exceções podem levar a lacunas signi
 ## 🔑 Critérios de Identificação
 Para identificar o **Exception Handling**, procure por:
 - Métodos de teste que não capturam ou verificam exceções quando uma falha esperada ocorre.
-- Testes que não validam se o código lança a exceção correta em cenários de erro.
-- Falta de assertivas ou verificações após o lançamento de exceções.
-
-### Detecção Automática
-Ferramentas de análise estática e linters podem ser configuradas para detectar blocos de código que deveriam capturar exceções, mas não o fazem corretamente.
+- Um método de teste que contém uma instrução throw ou um bloco catch
 
 ---
 
 ## ✅ Exemplo de Código
 
-### Exemplo com Exception Handling incorreto
+### Exemplo com Exception Handling
 
 ```dart
 import 'package:flutter_test/flutter_test.dart';
-
-void main() {
-  test('Teste de Divisão por Zero', () {
-    var result = divide(10, 0); // Exceção esperada, mas não verificada
-  });
-}
 
 double divide(int a, int b) {
   return a / b;
 }
 
+void main() {
+  final list = [2, 1, 0];
+
+  test('Teste de Divisão por Zero, exemplo 01', () {
+    var result = divide(10, list[0]); 
+    expect(result, 5);
+  });
+
+  test('Teste de Divisão por Zero, exemplo 02', () {
+    var result = divide(10, list[1]); 
+    expect(result, 10);
+  });
+
+  test('Teste de Divisão por Zero, exemplo 03', () {
+    var result = divide(10, list[0]); // Exceção esperada, mas não verificada
+    expect(result, 0);
+  });
+}
 ```
 
-### Exemplo com Exception Handling correto
+### Exemplo sem Exception Handling
 
 ```dart
 import 'package:flutter_test/flutter_test.dart';
-
-void main() {
-  test('Teste de Divisão por Zero', () {
-    try {
-      var result = divide(10, 0);
-    } catch (e) {
-      assert(e is IntegerDivisionByZeroException, "Esperava-se uma IntegerDivisionByZeroException");
-    }
-  });
-}
 
 double divide(int a, int b) {
   if (b == 0) {
-    throw IntegerDivisionByZeroException();
+    throw UnsupportedError('Division by zero is not supported'); 
   }
   return a / b;
+}
+
+void main() {
+  final list = [2, 1, 0];
+
+  test('Teste de Divisão por Zero, exemplo 01', () {
+    var result = divide(10, list[0]); 
+    expect(result, 5);
+  });
+
+  test('Teste de Divisão por Zero, exemplo 02', () {
+    var result = divide(10, list[1]); 
+    expect(result, 10);
+  });
+
+  test('Teste de Divisão por Zero', () {
+    try {
+      var result = divide(10, list[0]); 
+      expect(result, 0);
+    } catch (e) {
+      assert(e is UnsupportedError, "Esperava-se uma UnsupportedError"); 
+    }
+  });
 }
 
 ```
@@ -73,7 +94,6 @@ double divide(int a, int b) {
 ## 🚀 Correções Sugeridas
 Para resolver o **Exception Handling**:
 
-- **Capturar e Validar Exceções**: Utilize blocos `try-catch` e valide que a exceção esperada é lançada em situações de erro.
 - **Usar Ferramentas de Espera**: Ferramentas como `expect` ou `assert` podem ser utilizadas para verificar se exceções específicas são lançadas.
 - **Adicionar Mensagens Descritivas**: Sempre que possível, adicione mensagens explicativas quando as exceções forem capturadas, para esclarecer o motivo da falha.
 
@@ -90,12 +110,12 @@ Em algumas situações, pode ser aceitável não capturar exceções quando o fo
 
 ---
 
+## 📝 Nota
+O **Exception Handling** é um test smell que pode comprometer seriamente a robustez de um sistema. Garantir que as exceções sejam corretamente capturadas e verificadas durante os testes ajuda a prevenir falhas inesperadas em produção.
+
+---
+
 ## 📚 Referências e Estudos Relacionados
 - Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
 - Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
 - Van Deursen, A., et al. (2001). "Refactoring Test Code."
-
----
-
-## 📝 Nota
-O **Exception Handling** é um test smell que pode comprometer seriamente a robustez de um sistema. Garantir que as exceções sejam corretamente capturadas e verificadas durante os testes ajuda a prevenir falhas inesperadas em produção.

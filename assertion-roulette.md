@@ -8,7 +8,7 @@ Em outras palavras, o **Assertion Roulette** ocorre quando o teste "joga a rolet
 ---
 
 ## ⚠️ Sintomas e Impacto
-- **Dificuldade de Depuração**: Quando uma afirmação falha, o motivo exato não fica claro, especialmente se várias afirmações estão presentes.
+- **Dificuldade de Depuração**: Quando uma afirmação falha, o motivo exato não fica claro, especialmente se mais do que duas afirmações estão presentes.
 - **Redução da Manutenção**: Esse problema pode dificultar o trabalho de outros desenvolvedores ao tentar entender o teste, aumentando o custo de manutenção.
 - **Baixa Legibilidade**: O código se torna confuso, dificultando a identificação das condições testadas.
 
@@ -17,10 +17,7 @@ Em outras palavras, o **Assertion Roulette** ocorre quando o teste "joga a rolet
 ## 🔑 Critérios de Identificação
 Para identificar o **Assertion Roulette**, procure por:
 - Métodos de teste que contenham múltiplas afirmações (`assert`) sem mensagens descritivas.
-- Testes em que a falha não indica claramente qual condição específica foi violada.
-
-### Detecção Automática
-Ferramentas de análise estática e linters podem ser configuradas para verificar métodos de teste com múltiplas afirmações sem mensagens de contexto. 
+- Testes os quais não especificam claramente qual a condição testada em questão.                
 
 ---
 
@@ -30,39 +27,36 @@ Ferramentas de análise estática e linters podem ser configuradas para verifica
 
 ```dart
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_app/my_widget.dart';
 
 void main() {
-  testWidgets('Verifica o MyWidget', (WidgetTester tester) async {
-    await tester.pumpWidget(MyWidget());
+  test('Teste com Assertion Roulette', () {
+    final valores = [10, 20, 30];
 
-    expect(find.text('Título'), findsOneWidget);
-    expect(find.byIcon(Icons.add), findsOneWidget);
-    expect(find.byType(TextButton), findsOneWidget); // Falha possível sem explicação clara
+    expect(valores.length, 4); // Falha possível, mas sem indicar o motivo
+    expect(valores[0], 5); // Outra falha possível, sem explicação
+    expect(valores.contains(50), true); // Falha possível, sem contexto
   });
 }
 ```
 ### Exemplo sem Assertion Roulette
 
 ```dart
-import 'package:flutter_test/flutter_test.dart';
-import 'package:my_app/my_widget.dart';
-
 void main() {
-  testWidgets('Verifica o MyWidget', (WidgetTester tester) async {
-    await tester.pumpWidget(MyWidget());
+  test('Teste sem Assertion Roulette', () {
+    final valores = [10, 20, 30];
 
-    expect(find.text('Título'), findsOneWidget, reason: "Deve exibir o texto 'Título'");
-    expect(find.byIcon(Icons.add), findsOneWidget, reason: "Deve conter um ícone de adicionar");
-    expect(find.byType(TextButton), findsOneWidget, reason: "Deve conter um botão do tipo TextButton");
+    expect(valores.length, 4, reason: "A lista deve conter exatamente 4 elementos");
+    expect(valores[0], 5, reason: "O primeiro valor da lista deveria ser 5");
+    expect(valores.contains(50), true, reason: "A lista deveria conter o valor 50");
   });
 }
 ```
+
 ## 🚀 Correções Sugeridas
 Para resolver o Assertion Roulette:
 
 - **Adicione Mensagens de Descrição**: Inclua mensagens para cada assert, explicando a condição esperada e o motivo da verificação.
-- **Reduza a Quantidade de Asserts**: Se possível, divida o teste em métodos menores para cada condição que esteja testando, o que melhora a clareza e torna o código mais modular.
+- **Reduza a Quantidade de Asserts**: Se possível, divida o teste em testes menores, o que melhora a clareza e torna o código mais modular.
 - **Utilize Mocks e Expectativas**: Em casos mais complexos, considere usar uma estrutura de mock para validar condições, permitindo que você utilize métodos de teste mais robustos, como `expect`.
 
 ---
@@ -78,13 +72,12 @@ Em testes simples ou triviais com um único assert, pode ser aceitável omitir u
 
 ---
 
+## 📝 Nota
+O Assertion Roulette é especialmente relevante em projetos complexos onde múltiplas condições são verificadas em cada teste. Este guia ajuda a garantir que cada falha seja clara e fácil de rastrear.
+
+---
+
 ## 📚 Referências e Estudos Relacionados
 - Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
 - Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
 - Van Deursen, A., et al. (2001). "Refactoring Test Code."
-
----
-
-## 📝 Nota
-O Assertion Roulette é especialmente relevante em projetos complexos onde múltiplas condições são verificadas em cada teste. Este guia ajuda a garantir que cada falha seja clara e fácil de rastrear.
-

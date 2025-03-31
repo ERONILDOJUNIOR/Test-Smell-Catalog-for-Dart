@@ -17,9 +17,6 @@ Para identificar **Sleepy Test**, procure por:
 - Chamadas explícitas a `sleep` ou outros comandos de espera com tempos fixos.
 - Testes assíncronos que aguardam um período fixo em vez de esperar um evento ou condição específica.
 
-### Detecção Automática
-Alguns linters podem ser configurados para detectar o uso de comandos `sleep` em métodos de teste. Ferramentas de análise estática avançadas também podem sinalizar padrões de espera fixos.
-
 ---
 
 ## ✅ Exemplo de Código
@@ -32,10 +29,10 @@ import 'package:test/test.dart';
 void main() {
   test('Sleepy Test - Fixed Delay', () async {
     final dataFetcher = DataFetcher();
-    await dataFetcher.fetchData();
+    dataFetcher.fetchData();
     
     // Espera fixa de 5 segundos
-    await Future.delayed(Duration(seconds: 5)); 
+    await Future.delayed(const Duration(seconds: 5)); 
     expect(dataFetcher.isDataLoaded, isTrue, reason: 'Data should be loaded after 5 seconds');
   });
 }
@@ -43,12 +40,11 @@ void main() {
 class DataFetcher {
   bool isDataLoaded = false;
   
-  Future<void> fetchData() async {
-    await Future.delayed(Duration(seconds: 3)); // Simula um delay de carregamento
+ Future<void> fetchData() async {
+    await Future.delayed(const Duration(seconds: 5)); // Simula um delay de carregamento
     isDataLoaded = true;
   }
 }
-
 ```
 
 ### Exemplo sem Sleepy Test
@@ -71,17 +67,16 @@ class DataFetcher {
   bool isDataLoaded = false;
 
   Future<void> fetchData() async {
-    await Future.delayed(Duration(seconds: 3)); // Simula um delay de carregamento
+    await Future.delayed(const Duration(seconds: 3)); // Simula um delay de carregamento
     isDataLoaded = true;
   }
 }
 
 Future<void> waitFor(Function condition) async {
   while (!condition()) {
-    await Future.delayed(Duration(milliseconds: 100));
+    await Future.delayed(const Duration(milliseconds: 100));
   }
 }
-
 ```
 
 ---
@@ -106,14 +101,14 @@ Em situações onde o tempo de resposta do sistema é sempre o mesmo (como siste
 
 ---
 
+## 📝 Nota
+A remoção de **Sleepy Test** é especialmente importante para melhorar a eficiência e consistência da suíte de testes, reduzindo o tempo de execução e melhorando a confiabilidade dos resultados.
+
+---
+
 ## 📚 Referências e Estudos Relacionados
 - Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
 - Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
 - Van Deursen, A., et al. (2001). "Refactoring Test Code."
-
----
-
-## 📝 Nota
-A remoção de **Sleepy Test** é especialmente importante para melhorar a eficiência e consistência da suíte de testes, reduzindo o tempo de execução e melhorando a confiabilidade dos resultados.
 
 ---

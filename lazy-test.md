@@ -1,7 +1,7 @@
 # Lazy Test
 
 ## 🔍 Descrição do Problema
-O **Lazy Test** ocorre quando um teste não cobre adequadamente a funcionalidade ou comportamento esperado do código, sendo excessivamente superficial. Testes preguiçosos fornecem uma verificação mínima e tendem a não capturar erros sutis, o que prejudica a confiabilidade e a robustez da suíte de testes.
+O **Lazy Test** ocorre quando multiplos métodos de teste invocam o mesmo método de produção, tornando o código de teste difícil de manter, já que responsabilidades relacionadas a um método de produção são testadas em diferentes métodos de teste. **Lazy Test** fornecem uma verificação mínima e tendem a não capturar erros sutis, o que prejudica a confiabilidade e a robustez da suíte de testes.
 
 Em geral, esses testes verificam apenas os casos mais básicos e negligenciam cenários de borda e possíveis exceções, deixando vulnerabilidades não testadas.
 
@@ -16,12 +16,9 @@ Em geral, esses testes verificam apenas os casos mais básicos e negligenciam ce
 
 ## 🔑 Critérios de Identificação
 Para identificar o **Lazy Test**, observe:
+- Teste que chamam o mesmo método de produção muitas vezes.
 - Testes que verificam apenas os casos "felizes" ou básicos, sem considerar cenários de erro ou exceção.
-- Falta de validação para entradas ou condições extremas.
 - Testes com apenas uma ou duas afirmações mínimas que não refletem o comportamento real esperado do sistema.
-
-### Detecção Automática
-Ferramentas de análise estática e linters avançados podem sinalizar testes com poucas afirmações ou verificar a presença de cenários adicionais, conforme configurado.
 
 ---
 
@@ -32,9 +29,14 @@ Ferramentas de análise estática e linters avançados podem sinalizar testes co
 ```dart
 import 'package:flutter_test/flutter_test.dart';
 
-class Item {
-  final double price;
-  Item({required this.price});
+
+void main() {
+  test('Lazy Test - Adicionar Item ao Carrinho', () {
+    final cart = ShoppingCart();
+    cart.add(Item(price: 10));
+    
+    expect(cart.getTotalItems(), 1);  // Testa apenas uma coisa: o total de itens
+  });
 }
 
 class ShoppingCart {
@@ -44,18 +46,34 @@ class ShoppingCart {
     items.add(item);
   }
 
-  int get totalItems => items.length;
-  double get totalPrice => items.fold(0, (sum, item) => sum + item.price);
-  bool get isValid => totalPrice > 0;
-  bool get isEmpty => items.isEmpty;
+  int getTotalItems() {
+    return items.length;
+  }
+
+  double getTotalPrice() {
+    double total = 0;
+
+    for (var item in items) {
+      total += item.price; 
+    }
+
+    return total;
+  }
+
+  bool isValid() {
+    return (getTotalItems() > 0);
+  }
+
+  bool isEmpty() {
+    return items.isEmpty;
+  } 
 }
 
-void main() {
-  test('Lazy Test - Adicionar Item ao Carrinho', () {
-    final cart = ShoppingCart();
-    cart.add(Item(price: 10));
-    
-    assert(cart.totalItems == 1);  // Testa apenas uma coisa: o total de itens
+class Item {
+  final double price;
+
+  Item({
+    required this.price
   });
 }
 
@@ -66,9 +84,38 @@ void main() {
 ```dart
 import 'package:flutter_test/flutter_test.dart';
 
-class Item {
-  final double price;
-  Item({required this.price});
+void main() {
+  test('Teste - getTotalITems', () {
+    final cart = ShoppingCart();
+    cart.add(Item(price: 10));
+    
+    // Verifica o total de itens
+    expect(cart.getTotalItems(), 1);
+  });
+
+  test('Teste - getTotalPrice', () {
+    final cart = ShoppingCart();
+    cart.add(Item(price: 10));
+    
+    // Verifica o preço total
+    expect(cart.getTotalPrice(), 10);
+  });
+
+  test('Teste - isValid', () {
+    final cart = ShoppingCart();
+    cart.add(Item(price: 10));
+    
+    // Verifica a validade do carrinho
+    expect(cart.isValid(), isTrue);
+  });
+
+  test('Teste - isEmpty', () {
+    final cart = ShoppingCart();
+    cart.add(Item(price: 10));
+    
+    // Cenário de borda: verifica se o carrinho não está vazio
+    expect(cart.isEmpty(), isFalse);
+  });
 }
 
 class ShoppingCart {
@@ -78,30 +125,36 @@ class ShoppingCart {
     items.add(item);
   }
 
-  int get totalItems => items.length;
-  double get totalPrice => items.fold(0, (sum, item) => sum + item.price);
-  bool get isValid => totalPrice > 0;
-  bool get isEmpty => items.isEmpty;
+  int getTotalItems() {
+    return items.length;
+  }
+
+  double getTotalPrice() {
+    double total = 0;
+
+    for (var item in items) {
+      total += item.price; 
+    }
+
+    return total;
+  }
+
+  bool isValid() {
+    return getTotalItems() > 0;
+  }
+
+  bool isEmpty() {
+    return items.isEmpty;
+  } 
 }
 
-void main() {
-  test('Teste Completo - Adicionar Item ao Carrinho', () {
-    final cart = ShoppingCart();
-    cart.add(Item(price: 10));
-    
-    // Verifica o total de itens
-    assert(cart.totalItems == 1, "Total de itens deveria ser 1 após adicionar um item");
-    
-    // Verifica o preço total
-    assert(cart.totalPrice == 10, "Total price should be updated correctly after adding an item");
-    
-    // Verifica a validade do carrinho
-    assert(cart.isValid, "Cart should be valid after adding a valid item");
-    
-    // Cenário de borda: verifica se o carrinho não está vazio
-    assert(!cart.isEmpty, "Cart should not be empty after adding an item");
+class Item {
+  final double price;
+
+  Item({
+    required this.price
   });
-}
+} 
 
 ```
 
@@ -111,8 +164,8 @@ void main() {
 Para resolver o problema de **Lazy Test**:
 
 - **Adicione Cenários de Borda e Exceção**: Verifique o comportamento do sistema em condições extremas e para diferentes valores de entrada.
-- **Inclua Afirmações Específicas**: Use mensagens descritivas para cada assert, garantindo que o teste aborde todas as funcionalidades esperadas.
-- **Divida Funções Complexas**: Para métodos com múltiplos comportamentos, divida o teste em múltiplos cenários que validam cada aspecto individualmente.
+- **Divida o Teste em Menores**: Refatore o teste em métodos menores, com um único foco e com a verificação menos condições por teste.
+- **Reduza a Quantidade de Métodos**: Verifique se há necessidade de chamar o método de produção tantas vezes e remova quando for fútil. 
 
 ---
 
@@ -127,12 +180,12 @@ Em funções triviais ou puras, um teste simples pode ser aceitável. No entanto
 
 ---
 
+## 📝 Nota
+Lazy Tests devem ser evitados, especialmente em componentes críticos ou complexos do sistema. Eles oferecem uma cobertura superficial e podem mascarar problemas profundos no código.
+
+---
+
 ## 📚 Referências e Estudos Relacionados
 - Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
 - Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
 - Martin, R. C. (2008). *Clean Code: A Handbook of Agile Software Craftsmanship*
-
----
-
-## 📝 Nota
-Lazy Tests devem ser evitados, especialmente em componentes críticos ou complexos do sistema. Eles oferecem uma cobertura superficial e podem mascarar problemas profundos no código.

@@ -10,7 +10,7 @@ O **Duplicate Assert** compromete a clareza do teste e pode dificultar a manuten
 ## ⚠️ Sintomas e Impacto
 - **Redundância no Código**: O teste fica mais longo e difícil de entender, sem adicionar valor real, pois valida as mesmas condições várias vezes.
 - **Manutenção Difícil**: Modificações em uma das condições podem ser negligenciadas, levando a falhas que não são detectadas.
-- **Desnecessária Complexidade**: A duplicação de asserts torna o teste mais complicado do que o necessário, podendo causar confusão sobre o que está sendo validado.
+- **Poluição no Código**: Testes vazios adicionam ruído ao código de teste, dificultando a leitura e a compreensão do que está sendo realmente validado.
 
 ---
 
@@ -18,9 +18,6 @@ O **Duplicate Assert** compromete a clareza do teste e pode dificultar a manuten
 Para identificar o **Duplicate Assert**, procure por:
 - Testes que contenham múltiplas afirmações que verificam a mesma variável ou condição de forma redundante.
 - Condições ou comportamentos que são testados mais de uma vez dentro do mesmo método de teste.
-
-### Detecção Automática
-Ferramentas de análise estática e linters podem ser usadas para identificar asserts duplicados em um método de teste.
 
 ---
 
@@ -42,9 +39,11 @@ void main() {
 
 class User {
   final String name;
-  User({required this.name});
-}
 
+  User({
+    required this.name
+  });
+}
 ```
 
 ### Exemplo sem Duplicate Assert
@@ -62,9 +61,11 @@ void main() {
 
 class User {
   final String name;
-  User({required this.name});
-}
 
+  User({
+    required this.name
+  });
+}
 ```
 
 ---
@@ -89,12 +90,12 @@ Em alguns casos, pode ser útil validar uma condição em diferentes contextos o
 
 ---
 
+## 📝 Nota
+O **Duplicate Assert** pode ser encontrado frequentemente em testes mal estruturados. É um problema que pode ser facilmente resolvido, garantindo que os testes sejam claros e eficientes. Esse guia ajuda a refatorar testes redundantes, melhorando a qualidade do código de testes.
+
+---
+
 ## 📚 Referências e Estudos Relacionados
 - Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
 - Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
 - Van Deursen, A., et al. (2001). "Refactoring Test Code."
-
----
-
-## 📝 Nota
-O **Duplicate Assert** pode ser encontrado frequentemente em testes mal estruturados. É um problema que pode ser facilmente resolvido, garantindo que os testes sejam claros e eficientes. Esse guia ajuda a refatorar testes redundantes, melhorando a qualidade do código de testes.

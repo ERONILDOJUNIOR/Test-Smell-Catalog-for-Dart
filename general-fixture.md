@@ -1,7 +1,7 @@
 # General Fixture
 
 ## 🔍 Descrição do Problema
-**General Fixture** ocorre quando uma fixture de teste (um objeto ou configuração compartilhada entre múltiplos testes) é usada de forma excessivamente genérica ou inadequada. Esse smell ocorre quando a fixture é configurada de maneira que não reflete claramente o propósito dos testes, o que pode levar a falhas na cobertura de testes e confusão sobre os requisitos de cada teste.
+**General Fixture** isso ocorre quando nem todos os métodos de teste utilizam a estrutura de fixtures do caso de teste, indicando que a configuração está muito genérica. Como consequência, a execução dos testes pode ficar mais lenta, já que a configuração pode se tornar complexa, com etapas desnecessárias para testes que não as requerem.
 
 Testes devem ser independentes e focados, e as fixtures devem ser específicas para o contexto de cada teste. O uso excessivo de uma fixture genérica pode esconder dependências implícitas e reduzir a clareza do código.
 
@@ -9,7 +9,6 @@ Testes devem ser independentes e focados, e as fixtures devem ser específicas p
 
 ## ⚠️ Sintomas e Impacto
 - **Testes Dependentes de Outras Configurações**: Testes podem se tornar dependentes de configurações genéricas, tornando-os frágeis e difíceis de entender.
-- **Redução de Clareza**: A falta de especificidade em fixtures pode tornar os testes mais difíceis de entender e manter, já que o contexto de cada teste fica obscurecido.
 - **Baixa Modularidade**: Quando fixtures são compartilhadas entre muitos testes de forma inadequada, elas tornam o código difícil de modificar ou expandir.
 
 ---
@@ -19,9 +18,6 @@ Para identificar o **General Fixture**, procure por:
 - Fixtures que são configuradas de maneira muito ampla, cobrindo vários cenários que não são necessários para o teste específico.
 - Uso de objetos compartilhados que não são modificados ou contextualizados para cada teste individualmente.
 - Testes que dependem de configurações ou dados globais que não são relevantes para o comportamento específico que estão tentando verificar.
-
-### Detecção Automática
-Ferramentas de análise estática e linters podem ser configuradas para detectar quando uma fixture está sendo compartilhada entre testes sem considerar o contexto individual de cada um.
 
 ---
 
@@ -60,12 +56,12 @@ class UserDatabaseFixture {
 void main() {
   final fixture = UserDatabaseFixture(); // General Fixture compartilhada por todos os testes.
 
-  test('Should add user to the database', () {
+  test('Deve adicionar user a database', () {
     fixture.createTestUser("Alice");
     expect(fixture.db.userExists("Alice"), isTrue);
   });
 
-  test('Should add another user to the database', () {
+  test('SDeve adicionar outro user a database', () {
     fixture.createTestUser("Bob");
     expect(fixture.db.userExists("Bob"), isTrue);
   });
@@ -122,7 +118,6 @@ Para resolver o **General Fixture**:
 
 - **Seja Específico**: Crie fixtures que sejam específicas para o comportamento ou cenário de teste que você está verificando.
 - **Evite Dados Globais**: Tente não compartilhar dados ou configurações globais entre diferentes testes. Use métodos de configuração e teardown (limpeza) para isolar os testes.
-- **Modularize as Fixtures**: Quando possível, modularize suas fixtures para que elas sejam reutilizáveis, mas focadas no teste específico.
 
 ---
 
@@ -137,12 +132,12 @@ Em casos onde uma configuração comum é necessária entre vários testes, cons
 
 ---
 
+## 📝 Nota
+O **General Fixture** é especialmente importante em projetos de longo prazo, onde a reutilização excessiva de fixtures pode afetar a clareza e a confiabilidade dos testes. Garantir que cada teste tenha sua própria configuração ou fixture dedicada ajuda a manter os testes independentes e confiáveis.
+
+---
+
 ## 📚 Referências e Estudos Relacionados
 - Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
 - Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
 - Van Deursen, A., et al. (2001). "Refactoring Test Code."
-
----
-
-## 📝 Nota
-O **General Fixture** é especialmente importante em projetos de longo prazo, onde a reutilização excessiva de fixtures pode afetar a clareza e a confiabilidade dos testes. Garantir que cada teste tenha sua própria configuração ou fixture dedicada ajuda a manter os testes independentes e confiáveis.

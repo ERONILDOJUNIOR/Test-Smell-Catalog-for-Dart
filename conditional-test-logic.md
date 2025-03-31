@@ -15,10 +15,6 @@
 ## 🔑 Critérios de Identificação
 Para identificar o **Conditional Test Logic**, verifique:
 - Métodos de teste que contêm estruturas de controle de fluxo, como `if`, `switch`, `for`, `while`, etc.
-- Testes que não garantem a execução completa de todos os caminhos do código de produção.
-
-### Detecção Automática
-Ferramentas de análise estática podem ser configuradas para identificar testes com estruturas condicionais que alteram o fluxo de execução.
 
 ---
 
@@ -29,10 +25,25 @@ Ferramentas de análise estática podem ser configuradas para identificar testes
 ```dart
 import 'package:flutter_test/flutter_test.dart';
 
+class ShoppingCart {
+  final double totalAmount;
+  double discount = 0;
+
+  ShoppingCart(this.totalAmount);
+
+  void applyDiscount() {
+    if (totalAmount < 0) {
+      throw ArgumentError('Amount cannot be negative');
+    }
+    discount = totalAmount > 100 ? 0.1 : 0;
+  }
+}
+
 void main() {
   test('Calcula o desconto com lógica condicional', () {
-    final cart = ShoppingCart(totalAmount: 50);
-
+    final cart = ShoppingCart(50);
+    cart.applyDiscount();
+    
     if (cart.totalAmount > 100) {
       expect(cart.discount, 0.1); // Só é executado se a condição for verdadeira
     } else {
@@ -50,25 +61,40 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('Calcula desconto para valor acima de 100', () {
-    final cart = ShoppingCart(totalAmount: 150);
+    final cart = ShoppingCart(150);
+    cart.applyDiscount();
     expect(cart.discount, 0.1, reason: "Desconto deve ser 10% para valores acima de 100");
   });
 
   test('Calcula desconto para valor igual ou abaixo de 100', () {
-    final cart = ShoppingCart(totalAmount: 50);
+    final cart = ShoppingCart(50);
+    cart.applyDiscount();
     expect(cart.discount, 0, reason: "Desconto deve ser 0 para valores iguais ou abaixo de 100");
   });
 }
 
-```
+class ShoppingCart {
+  final double totalAmount;
+  double discount = 0;
 
+  ShoppingCart(this.totalAmount);
+
+  void applyDiscount() {
+    if (totalAmount < 0) {
+      throw ArgumentError('Amount cannot be negative');
+    }
+    discount = totalAmount > 100 ? 0.1 : 0;
+  }
+}
+
+```
 ---
 
 ## 🚀 Correções Sugeridas
 Para resolver o Conditional Test Logic:
 
 - **Remova Condicionais dos Testes**: Divida os cenários condicionais em testes separados, cada um cobrindo um caso específico.
-- **Mantenha Testes Simples e Lineares**: Testes devem ser diretos, garantindo que cada execução passe pelo mesmo fluxo e validações.
+- **Mantenha Testes Simples e Lineare s**: Testes devem ser diretos, garantindo que cada execução passe pelo mesmo fluxo e validações.
 - **Use Mocking para Contextos Específicos**: Configure o teste com valores específicos, evitando dependências de condições internas.
 
 ---
@@ -84,12 +110,12 @@ Para testes de lógica complexa onde múltiplas condições são inevitáveis, c
 
 ---
 
+## 📝 Nota
+**Conditional Test Logic** é uma prática comum, mas que reduz a confiabilidade dos testes, pois qualquer alteração na condição interna pode alterar a cobertura ou o comportamento do teste, tornando-o menos eficaz.
+
+---
+
 ## 📚 Referências e Estudos Relacionados
 - Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
 - Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
 - Van Deursen, A., et al. (2001). "Refactoring Test Code."
-
----
-
-## 📝 Nota
-**Conditional Test Logic** é uma prática comum, mas que reduz a confiabilidade dos testes, pois qualquer alteração na condição interna pode alterar a cobertura ou o comportamento do teste, tornando-o menos eficaz.

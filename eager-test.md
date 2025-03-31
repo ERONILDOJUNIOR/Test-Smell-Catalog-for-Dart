@@ -1,7 +1,7 @@
 # Eager Test
 
 ## 🔍 Descrição do Problema
-**Eager Test** ocorre quando um teste é escrito para verificar mais condições ou comportamentos do que o necessário, ou quando a configuração e a execução do teste são feitas de maneira apressada e sem foco, resultando em testes excessivos. Isso leva a um teste que tenta cobrir muitos cenários, podendo tornar-se muito grande, difícil de entender e de manter.
+**Eager Test** ocorre quando um método de teste invoca diversos métodos do código de produção, tornando o codigo de teste complicado de entender e mais dificil de usar como documentação. Ademais, isso gera testes mais dependente entre si e com uma manutenção complexa. **Eager Test** é escrito para verificar mais condições ou comportamentos do que o necessário, ou quando a configuração e a execução do teste são feitas de maneira apressada e sem foco, resultando em testes excessivos.
 
 Em vez de testar um comportamento específico de maneira focada e isolada, o **Eager Test** testa várias coisas ao mesmo tempo, o que pode resultar em falhas difíceis de identificar ou em testes que são difíceis de modificar sem afetar outras verificações.
 
@@ -16,12 +16,8 @@ Em vez de testar um comportamento específico de maneira focada e isolada, o **E
 
 ## 🔑 Critérios de Identificação
 Para identificar o **Eager Test**, procure por:
-- Métodos de teste que incluem muitas verificações em uma única execução.
-- Testes que combinam múltiplas verificações que poderiam ser divididas em testes menores e mais específicos.
+- Métodos de teste que incluem muitos métodos do código de produção ou métodos desnecessários.
 - Falta de clareza sobre o comportamento específico sendo testado, devido à mistura de várias verificações.
-
-### Detecção Automática
-Ferramentas de análise estática podem ser usadas para detectar testes excessivamente grandes, mas a melhor forma de evitar o **Eager Test** é revisar o design do código de testes e garantir que ele siga os princípios de teste unitário.
 
 ---
 
@@ -37,13 +33,14 @@ void main() {
     var user = User(name: "John", email: "john@example.com");
   
     user.register();
-  
+
+    // Testa muitas condições ao mesmo tempo
     expect(user.name, equals("John"));
     expect(user.email, equals("john@example.com"));
     expect(user.isRegistered, isTrue);
     expect(user.hasValidEmail, isTrue);
     expect(user.hasValidPassword, isTrue);
-    expect(user.registrationDate, isNotNull); // Testa muitas condições ao mesmo tempo
+    expect(user.registrationDate, isNotNull); 
   });
 }
 
@@ -55,7 +52,10 @@ class User {
   bool hasValidPassword = true;
   DateTime? registrationDate;
 
-  User({required this.name, required this.email});
+  User({
+    required this.name, 
+    required this.email
+    });
 
   void register() {
     isRegistered = true;
@@ -71,35 +71,22 @@ class User {
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  var user = User(name: "John", email: "john@example.com");
+  user.register();
+
   test('Teste de Nome do Usuário', () {
-    var user = User(name: "John", email: "john@example.com");
-    
-    user.register();
-    
     expect(user.name, equals("John"));
   });
 
   test('Teste de Email do Usuário', () {
-    var user = User(name: "John", email: "john@example.com");
-    
-    user.register();
-    
     expect(user.email, equals("john@example.com"));
   });
 
   test('Teste de Status de Registro do Usuário', () {
-    var user = User(name: "John", email: "john@example.com");
-    
-    user.register();
-    
     expect(user.isRegistered, isTrue);
   });
 
   test('Teste de Data de Registro do Usuário', () {
-    var user = User(name: "John", email: "john@example.com");
-    
-    user.register();
-    
     expect(user.registrationDate, isNotNull);
   });
 }
@@ -110,14 +97,16 @@ class User {
   bool isRegistered = false;
   DateTime? registrationDate;
 
-  User({required this.name, required this.email});
+  User({
+    required this.name, 
+    required this.email
+  });
 
   void register() {
     isRegistered = true;
     registrationDate = DateTime.now();
   }
 }
-
 ```
 
 ---
@@ -125,9 +114,8 @@ class User {
 ## 🚀 Correções Sugeridas
 Para resolver o **Eager Test**:
 
-- **Divida o Teste em Menores**: Refatore o teste em métodos menores, com um único foco e com a verificação de uma única condição por teste.
+- **Divida o Teste em Menores**: Refatore o teste em métodos menores, com um único foco e com a verificação menos condições por teste.
 - **Concentre-se em Um Comportamento de Cada Vez**: Cada teste deve validar um comportamento ou uma funcionalidade específica, para que falhas possam ser identificadas facilmente.
-- **Utilize Testes Unitários Focados**: Seguir a regra de "um teste, uma condição" melhora a legibilidade e facilita a manutenção do código de testes.
 
 ---
 
@@ -142,12 +130,12 @@ Em testes de integração ou testes end-to-end, pode ser necessário testar múl
 
 ---
 
+## 📝 Nota
+O **Eager Test** é um problema comum quando testes não são bem projetados ou quando há pressa em criar testes abrangentes. Seguir o princípio de criar testes pequenos e focados pode evitar esse problema e resultar em testes mais eficazes e fáceis de manter.
+
+---
+
 ## 📚 Referências e Estudos Relacionados
 - Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
 - Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
 - Van Deursen, A., et al. (2001). "Refactoring Test Code."
-
----
-
-## 📝 Nota
-O **Eager Test** é um problema comum quando testes não são bem projetados ou quando há pressa em criar testes abrangentes. Seguir o princípio de criar testes pequenos e focados pode evitar esse problema e resultar em testes mais eficazes e fáceis de manter.

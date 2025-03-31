@@ -1,9 +1,7 @@
 # Empty Test
 
 ## 🔍 Descrição do Problema
-**Empty Test** ocorre quando um teste é criado, mas não contém nenhuma lógica de validação ou verificação significativa. O teste pode estar vazio ou não realizar nenhuma verificação real, o que o torna inútil. Em alguns casos, um teste vazio pode ser deixado como um "marco" de que o teste precisa ser implementado mais tarde, mas nunca é removido ou completado.
-
-Este tipo de teste é uma falha, pois não contribui para garantir a qualidade ou comportamento do sistema.
+**Empty Test** isso ocorre quando um método de teste não tem instruções executáveis. Um teste vazio pode ser considerado mais perigoso do que não ter um caso de teste, pois o JUnit indicará que o teste passa, mesmo que não haja nenhuma instrução executável no corpo do método. Em alguns casos, um teste vazio pode ser deixado como um "marco" de que o teste precisa ser implementado mais tarde, mas nunca é removido ou completado.
 
 ---
 
@@ -17,11 +15,7 @@ Este tipo de teste é uma falha, pois não contribui para garantir a qualidade o
 ## 🔑 Critérios de Identificação
 Para identificar o **Empty Test**, procure por:
 - Métodos de teste que não contenham nenhuma asserção, `expect` ou outro tipo de validação.
-- Testes que, quando executados, não fornecem feedback sobre o comportamento do sistema ou falham de maneira óbvia.
 - Testes que parecem ser apenas esqueléticos ou placeholders, sem implementações reais.
-
-### Detecção Automática
-A detecção de testes vazios pode ser realizada através de ferramentas de cobertura de testes ou linters configurados para verificar a presença de asserções dentro dos métodos de teste.
 
 ---
 
@@ -38,6 +32,20 @@ void main() {
   });
 }
 
+class User {
+  final String name;
+  final String email;
+  bool isRegistered = false;
+
+  User({
+    required this.name, 
+    required this.email
+  });
+
+  void register() {
+    isRegistered = true;
+  }
+}
 ```
 
 ### Exemplo sem Empty Test
@@ -60,13 +68,15 @@ class User {
   final String email;
   bool isRegistered = false;
 
-  User({required this.name, required this.email});
+  User({
+    required this.name, 
+    required this.email
+  });
 
   void register() {
     isRegistered = true;
   }
 }
-
 ```
 
 ---
@@ -74,7 +84,6 @@ class User {
 ## 🚀 Correções Sugeridas
 Para resolver o **Empty Test**:
 
-- **Adicione Asserções Significativas**: Verifique os comportamentos e resultados relevantes do sistema, garantindo que o teste realmente valide uma parte do código.
 - **Remova Testes Vazios**: Se um teste vazio não for mais necessário, remova-o para reduzir a poluição no código de testes.
 - **Revise Periodicamente os Testes**: Durante a manutenção ou refatoração, revise os testes para garantir que todos estão fazendo algo útil.
 
@@ -91,12 +100,12 @@ Em algumas situações, testes vazios podem ser usados como um marcador temporá
 
 ---
 
+## 📝 Nota
+O **Empty Test** é uma falha comum em fases iniciais de desenvolvimento, onde os testes podem ser deixados vazios como placeholders. Isso pode resultar em uma falsa sensação de cobertura e levar a falhas de detecção de erros em estágios posteriores.
+
+---
+
 ## 📚 Referências e Estudos Relacionados
 - Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
 - Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
 - Van Deursen, A., et al. (2001). "Refactoring Test Code."
-
----
-
-## 📝 Nota
-O **Empty Test** é uma falha comum em fases iniciais de desenvolvimento, onde os testes podem ser deixados vazios como placeholders. Isso pode resultar em uma falsa sensação de cobertura e levar a falhas de detecção de erros em estágios posteriores.
