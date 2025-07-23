@@ -1,3 +1,5 @@
+# Assertion Roulette
+
 ## 🔍 Descrição do Problema
 
 **Assertion Roulette** ocorre quando um método de teste em Dart contém múltiplas **expectativas** (`expect`) sem uma mensagem descritiva ou contexto adequado. Isso torna difícil identificar qual expectativa falhou e por quê, prejudicando a legibilidade e a manutenção do teste.
