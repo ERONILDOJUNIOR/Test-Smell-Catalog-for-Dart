@@ -75,27 +75,10 @@ void main() {
     cart.applyDiscount();
     expect(cart.discount, 0, reason: "Desconto deve ser 0 para valores iguais ou abaixo de 100");
   });
-
-  // A classe ShoppingCart precisa estar definida ou importada
-  // para que os testes funcionem. Para este exemplo, a colocamos aqui:
-  // class ShoppingCart {
-  //   final double totalAmount;
-  //   double discount = 0;
-  //
-  //   ShoppingCart(this.totalAmount);
-  //
-  //   void applyDiscount() {
-  //     if (totalAmount < 0) {
-  //       throw ArgumentError('Amount cannot be negative');
-  //     }
-  //     discount = totalAmount > 100 ? 0.1 : 0;
-  //   }
-  // }
 }
 
 // Em um projeto Dart real, a classe ShoppingCart estaria em seu próprio arquivo
-// e seria importada onde necessário. Para que os exemplos de código sejam autocontidos,
-// a classe ShoppingCart é incluída aqui.
+// e seria importada onde necessário.
 class ShoppingCart {
   final double totalAmount;
   double discount = 0;
