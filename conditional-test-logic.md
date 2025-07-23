@@ -114,7 +114,7 @@ Para testes de lógica complexa onde múltiplas condições são inevitáveis no
 
 ## 🛠 Ferramentas de Detecção
 
-  * **Linters e Analisadores de Código**: Ferramentas como `dart analyze` (com regras de lint adicionais como as do pacote `lints` ou `pedantic`) podem ser configuradas para detectar estruturas condicionais (`if`, `for`, `while`, `switch`) dentro dos métodos de teste.
+  * **Linters e Analisadores de Código**: Ferramentas como `dart analyze` podem ser configuradas para detectar estruturas condicionais (`if`, `for`, `while`, `switch`) dentro dos métodos de teste.
   * **Plugins de Test Smells**: Ferramentas de análise de código estática como **SonarQube** podem ser adaptadas ou configuradas com regras personalizadas para identificar o uso de estruturas de controle em testes Dart.
 
 -----
