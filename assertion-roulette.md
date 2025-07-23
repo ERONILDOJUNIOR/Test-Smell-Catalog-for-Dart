@@ -79,7 +79,7 @@ Em testes simples ou triviais com uma única **expectativa**, pode ser aceitáve
 
 ## 🛠 Ferramentas de Detecção
 
-  * **Linter Configurável**: Ferramentas como `dart analyze` podem ser configuradas com regras personalizadas (ou pacotes de lint como `pedantic` ou `lints`) para identificar métodos de teste com múltiplas expectativas sem o parâmetro `reason`.
+  * **Linter Configurável**: Ferramentas como `dart analyze` podem ser configuradas com regras personalizadas para identificar métodos de teste com múltiplas expectativas sem o parâmetro `reason`.
   * **Plugins para Test Smells**: Ferramentas de análise de código estática como **SonarQube** podem ser estendidas com regras personalizadas para Dart para monitorar múltiplas expectativas sem descrições explícitas.
 
 -----
