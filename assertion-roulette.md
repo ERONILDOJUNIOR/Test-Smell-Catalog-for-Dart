@@ -94,4 +94,3 @@ O Assertion Roulette é especialmente relevante em projetos complexos onde múlt
 
   * Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
   * Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
-  * Van Deursen, A., et al. (2001). "Refactoring Test Code."
