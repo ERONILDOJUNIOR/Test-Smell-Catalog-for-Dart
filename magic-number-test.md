@@ -1,8 +1,8 @@
 # Magic Number Test
 
 ## 🔍 Descrição do Problema
-
 O **Magic Number Test** ocorre quando asserções em um método de teste contêm literais numéricos como parâmetros, sem que seu significado seja claro. Números mágicos devem ser substituídos por constantes nomeadas, onde o nome descreve a origem do valor ou o que ele representa Esses "números mágicos" tornam o teste mais difícil de ler e entender, pois é necessário inferir o propósito de cada valor diretamente do contexto.
+
 ---
 
 ## ⚠️ Sintomas e Impacto
