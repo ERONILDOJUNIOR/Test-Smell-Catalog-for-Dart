@@ -1,7 +1,7 @@
 # Unknown Test
 
 ## 🔍 Descrição do Problema
-**Unknown Test** isso ocorre quando um método de teste não contém asserções. Como resultado, o JUnit exibe o método de teste como aprovado, a menos que as instruções lancem uma exceção no método de teste. Esse tipo de teste cria uma falsa ilusão de bom funcionamento.
+**Unknown Test** isso ocorre quando um método de teste não contém asserções. Como resultado, o método de teste é exibido como aprovado, a menos que as instruções lancem uma exceção no método de teste. Esse tipo de teste cria uma falsa ilusão de bom funcionamento.
 
 ---
 
