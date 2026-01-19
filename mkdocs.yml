@@ -1,0 +1,28 @@
+site_name: Test Smell Catalog for Dart
+site_description: Catálogo de test smells específicos para Dart
+site_author: Eronildo Júnior
+
+theme:
+  name: readthedocs
+
+nav:
+  - Home: index.md
+  - Smells:
+      - Assertion Roulette: assertion-roulette.md
+      - Conditional Test Logic: conditional-test-logic.md
+      - Constructor Initialization: constructor-initialization.md
+      - Default Test: default-test.md
+      - Dependent Test: dependent-test.md
+      - Duplicate Assert: duplicate-assert.md
+      - Eager Test: eager-test.md
+      - Empty Test: empty-test.md
+      - Ignored Test: ignored-test.md
+      - Lazy Test: lazy-test.md
+      - Magic Number Test: magic-number-test.md
+      - Mystery Guest: mystery-guest.md
+      - Resource Optimism: resource-optimism.md
+      - Redundant Print: redundant-print.md
+      - Redundant Assertion: redundant-assertion.md
+      - Sleepy Test: sleepy-test.md
+      - Unknown Test: unknown-test.md
+      - Other Smells: other-smells.md
