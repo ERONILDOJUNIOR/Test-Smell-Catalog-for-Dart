@@ -20,7 +20,7 @@ nav:
       - Duplicate Assert: duplicate-assert.md
       - Eager Test: eager-test.md
       - Empty Test: empty-test.md
-      - Exception Handling Test: exception-handling-test.md
+      - Exception Handling Test: exception-handling.md
       - General Fixture: general-fixture.md
       - Ignored Test: ignored-test.md
       - Lazy Test: lazy-test.md
@@ -41,4 +41,4 @@ nav:
 
 
 extra_css:
-  - /stylesheets/extra.css
+  - stylesheets/extra.css
