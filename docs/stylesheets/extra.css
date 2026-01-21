@@ -1,0 +1,36 @@
+/* Sidebar background */
+.wy-nav-side {
+    background: #2f3b45;
+}
+
+/* Top search bar */
+.wy-side-nav-search {
+    background-color: #24303a;
+}
+
+/* Project title text */
+.wy-side-nav-search > a {
+    color: #ffffff;
+}
+
+/* Sidebar links */
+.wy-menu-vertical a {
+    color: #d9dee3;
+}
+
+/* Sidebar link hover */
+.wy-menu-vertical a:hover {
+    background-color: #3b4a56;
+}
+
+/* Active page highlight */
+.wy-menu-vertical li.current > a {
+    background-color: #1f8ad2;
+    color: #ffffff;
+}
+
+/* Section headers (e.g. Test Smells) */
+.wy-menu-vertical header,
+.wy-menu-vertical p.caption {
+    color: #a9b4be;
+}

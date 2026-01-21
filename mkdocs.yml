@@ -1,14 +1,17 @@
 site_name: Test Smell Catalog for Dart
-site_description: Catálogo de test smells específicos para Dart
+site_description: A catalog of test smells specific to the Dart ecosystem
 site_author: Eronildo Júnior
 
 theme:
   name: readthedocs
-  logo: assets/arieslab-original.png
+  logo: assets/arieslab-original-branca.png
+  collapse_navigation: true
+  navigation_depth: 2
 
 nav:
   - Home: index.md
-  - Smells:
+  - Test Smells:
+    - Standard Smells:
       - Assertion Roulette: assertion-roulette.md
       - Conditional Test Logic: conditional-test-logic.md
       - Constructor Initialization: constructor-initialization.md
@@ -17,6 +20,8 @@ nav:
       - Duplicate Assert: duplicate-assert.md
       - Eager Test: eager-test.md
       - Empty Test: empty-test.md
+      - Exception Handling Test: exception-handling-test.md
+      - General Fixture: general-fixture.md
       - Ignored Test: ignored-test.md
       - Lazy Test: lazy-test.md
       - Magic Number Test: magic-number-test.md
@@ -24,6 +29,16 @@ nav:
       - Resource Optimism: resource-optimism.md
       - Redundant Print: redundant-print.md
       - Redundant Assertion: redundant-assertion.md
+      - Sensitive Equality: sensitive-equality.md
       - Sleepy Test: sleepy-test.md
       - Unknown Test: unknown-test.md
-      - Other Smells: other-smells.md
+      - Verbose Test: verbose-test.md
+    - Dart Specific Smells:
+      # Aqui você vai colocar os smells que forem específicos do Dart
+      - Expected Resolution Omission: expected-resolution-omission.md
+      - Residual State: residual-state.md
+      - Widget Setup: widget-setup.md
+
+
+extra_css:
+  - stylesheets/extra.css
