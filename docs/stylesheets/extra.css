@@ -16,7 +16,10 @@
 /* Sidebar links */
 .wy-menu-vertical a {
     color: #d9dee3;
+    font-size: 100%;
 }
+
+
 
 /* Sidebar link hover */
 .wy-menu-vertical a:hover {
@@ -29,6 +32,7 @@
     color: #ffffff;
 }
 .wy-menu-vertical li.current > a :hover{
+    background-color: #ffffff;
     color: #632682;
 }
 
@@ -37,4 +41,16 @@
 .wy-menu-vertical header,
 .wy-menu-vertical p.caption {
     color: #a9b4be;
+}
+
+
+.wy-nav-top{
+    background: #632682;
+}
+
+.wy-menu-vertical li button.toctree-expand{
+    color: #ffffff;
+}
+.wy-menu-vertical li.current>a button.toctree-expand, .wy-menu-vertical li.on a button.toctree-expand{
+    color: #ffffff;
 }
