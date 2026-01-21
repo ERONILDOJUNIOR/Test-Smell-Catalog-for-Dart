@@ -1,79 +1,112 @@
-# Catálogo de Test Smells para Dart/Flutter
+# Test Smells Catalog for Dart and Flutter
 
-Bem-vindo ao **Catálogo de Test Smells para Dart/Flutter** – uma coleção cuidadosamente organizada para ajudar desenvolvedores e equipes de QA a identificar, entender e resolver test smells comuns que podem comprometer a qualidade dos testes e do software.
+This document presents a **Test Smells Catalog for the Dart and Flutter ecosystem**, aiming to support researchers, software developers, and quality assurance professionals in the identification, analysis, and mitigation of recurring problems in automated tests.
 
-## 📌 O que são Test Smells?
-
-**Test Smells** são padrões de código problemáticos dentro de testes que, embora não causem necessariamente falhas, indicam potenciais problemas de design ou manutenção. Assim como *code smells* em código de produção, esses "cheiros" nos testes podem impactar negativamente a legibilidade, a confiabilidade e a eficiência dos testes.
-
-Este catálogo traz uma lista dos principais test smells conhecidos em outras linguagens e frameworks, adaptados para o contexto de desenvolvimento em **Dart** e **Flutter**.
+The catalog is grounded in established literature on *test smells* and systematically adapted to the Dart and Flutter context, considering language-specific characteristics, architectural patterns, and framework conventions.
 
 ---
 
-## 🎯 Objetivo do Catálogo
+## 1. Introduction
 
-O catálogo visa:
-- 📖 **Definir e descrever** os test smells mais comuns, com exemplos práticos para cada um.
-- 🛠 **Oferecer critérios de identificação** para facilitar a detecção de cada smell nos testes.
-- ✨ **Sugerir abordagens de correção** e boas práticas, ajudando você a manter seus testes claros, robustos e de fácil manutenção.
-- 📊 **Proporcionar uma visão mais profunda** sobre o impacto de cada smell na qualidade do código e da manutenção.
+### 1.1 Test Smells
 
----
+**Test Smells** are indicators of structural or design problems in automated test code that, although not necessarily causing immediate failures, **negatively affect test readability, reliability, maintainability, and long-term effectiveness**.
 
-## 📚 Organização do Catálogo
-
-Cada test smell neste catálogo segue um formato estruturado, contendo:
-- **Nome do Smell** e descrição
-- **Sintomas e impacto** sobre a qualidade do teste
-- **Critérios de identificação**, com exemplos de código
-- **Soluções sugeridas** para refatoração ou melhoria
-- **Exceções** ou casos em que o smell pode ser aceitável
+Analogous to *code smells* in production code, test smells serve as warning signs of potential weaknesses in test design, which may compromise software evolution and confidence in test results.
 
 ---
 
-## 📖 Guia de Uso
+### 1.2 Motivation
 
-1. **Navegue pelo índice abaixo** para explorar cada test smell.
-2. **Identifique os smells** que podem estar presentes no seu código e veja os exemplos e critérios para reconhecê-los.
-3. **Aplique as soluções sugeridas** para melhorar a qualidade e manutenção dos seus testes em Dart/Flutter.
-4. **Mantenha-se atualizado**! Este catálogo será expandido com novos smells específicos para Dart/Flutter à medida que surgirem.
+While test smells have been extensively documented in languages such as Java and frameworks like JUnit, **there is a lack of systematized and domain-specific material for the Dart and Flutter ecosystem**.
+
+This catalog addresses this gap by providing a structured, technically rigorous reference tailored to Dart and Flutter testing practices.
 
 ---
 
-## 🗂 Índice de Test Smells
+## 2. Objectives
 
-1. [Assertion Roulette](assertion-roulette.md)
-2. [Conditional Test Logic](conditional-test-logic.md)
-3. [Constructor Initialization](constructor-initialization.md)
-4. [Default Test](default-test.md)
-5. [Dependent Test](dependent-test.md)
-6. [Duplicate Assert](duplicate-assert.md)
-7. [Eager Test](eager-test.md)
-8. [Empty Test](empty-test.md)
-9. [Exception Handling](exception-handling.md)
-10. [General Fixture](general-fixture.md)
-11. [Ignored Test](ignored-test.md)
-12. [Lazy Test](lazy-test.md)
-13. [Magic Number Test](magic-number-test.md)
-14. [Mystery Guest](mystery-guest.md)
-15. [Redundant Print](redundant-print.md)
-16. [Redundant Assertion](redundant-assertion.md)
-17. [Resource Optimism](resource-optimism.md)
-18. [Sensitive Equality](sensitive-equality.md)
-19. [Sleepy Test](sleepy-test.md)
-20. [Unknown Test](unknown-test.md)
+The primary objectives of this catalog are to:
+
+- Systematize relevant test smells in the context of Dart and Flutter;
+- Provide **precise and well-founded definitions** for each test smell;
+- Establish **clear identification criteria**, supported by code examples;
+- Present **refactoring and mitigation strategies** based on best practices;
+- Analyze the **impact of test smells on test quality and software maintainability**.
+
+---
+
+## 3. Catalog Structure
+
+Each test smell in this catalog is documented using a standardized structure consisting of:
+
+- **Test Smell Name**
+- **Conceptual Description**
+- **Symptoms and Impact**
+- **Identification Criteria**
+- **Code Examples in Dart/Flutter**
+- **Refactoring or Mitigation Strategies**
+- **Notes and Exceptions**, when applicable
+
+This structure ensures consistency, clarity, and comparability across catalog entries.
+
+---
+
+## 4. Usage Guidelines
+
+The following approach is recommended when using this catalog:
+
+1. Navigate the index to locate relevant test smells;
+2. Compare the identification criteria with the test code under analysis;
+3. Assess the described potential impacts;
+4. Apply the suggested refactoring or mitigation strategies;
+5. Use the catalog as a continuous reference during test development and review activities.
+
+---
+
+## 5. Test Smells Index
+
+1. [Assertion Roulette](assertion-roulette.md)  
+2. [Conditional Test Logic](conditional-test-logic.md)  
+3. [Constructor Initialization](constructor-initialization.md)  
+4. [Default Test](default-test.md)  
+5. [Dependent Test](dependent-test.md)  
+6. [Duplicate Assert](duplicate-assert.md)  
+7. [Eager Test](eager-test.md)  
+8. [Empty Test](empty-test.md)  
+9. [Exception Handling](exception-handling.md)  
+10. [General Fixture](general-fixture.md)  
+11. [Ignored Test](ignored-test.md)  
+12. [Lazy Test](lazy-test.md)  
+13. [Magic Number Test](magic-number-test.md)  
+14. [Mystery Guest](mystery-guest.md)  
+15. [Redundant Print](redundant-print.md)  
+16. [Redundant Assertion](redundant-assertion.md)  
+17. [Resource Optimism](resource-optimism.md)  
+18. [Sensitive Equality](sensitive-equality.md)  
+19. [Sleepy Test](sleepy-test.md)  
+20. [Unknown Test](unknown-test.md)  
 21. [Verbose Test](verbose-test.md)
 
 ---
 
-## 🔗 Contribuição e Expansão
+## 6. Contributions
 
-Este catálogo é um trabalho em andamento, e contribuições são bem-vindas! Se você encontrar um test smell específico de Dart/Flutter ou tiver sugestões para melhorar o catálogo, sinta-se à vontade para abrir uma issue ou enviar um pull request.
+This catalog is a living artifact. Contributions are encouraged, particularly in the following areas:
+
+- Identification of test smells specific to Dart and Flutter;
+- Conceptual refinement of existing definitions;
+- Inclusion of empirical or real-world examples;
+- Discussion of limitations, trade-offs, and acceptable exceptions.
+
+Contributions may be submitted via issues or pull requests.
 
 ---
 
-**📝 Nota:** Este catálogo é voltado para desenvolvedores e testadores que buscam melhorar a qualidade dos testes em **Dart/Flutter**. Por favor, use-o como um guia prático e evolua com ele!
+## 7. Final Remarks
+
+This catalog is intended to support **research, education, and professional practice** in software testing within the Dart and Flutter ecosystem.
+
+It does not replace technical judgment but provides a structured foundation for critical analysis and continuous improvement of automated tests.
 
 ---
-
-Aproveite a leitura, e que o seu código esteja sempre livre de smells!
