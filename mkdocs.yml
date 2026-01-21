@@ -4,6 +4,7 @@ site_author: Eronildo Júnior
 
 theme:
   name: readthedocs
+  logo: assets/arieslab-original.png
 
 nav:
   - Home: index.md
