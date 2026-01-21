@@ -1,11 +1,11 @@
 /* Sidebar background */
 .wy-nav-side {
-    background: #2f3b45;
+    background: #632682;
 }
 
 /* Top search bar */
 .wy-side-nav-search {
-    background-color: #24303a;
+    background-color: #632682;
 }
 
 /* Project title text */
@@ -20,14 +20,18 @@
 
 /* Sidebar link hover */
 .wy-menu-vertical a:hover {
-    background-color: #3b4a56;
+    background-color: #5e456b;
 }
 
 /* Active page highlight */
 .wy-menu-vertical li.current > a {
-    background-color: #1f8ad2;
+    background-color: #632682;
     color: #ffffff;
 }
+.wy-menu-vertical li.current > a :hover{
+    color: #632682;
+}
+
 
 /* Section headers (e.g. Test Smells) */
 .wy-menu-vertical header,
