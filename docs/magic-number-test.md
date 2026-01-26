@@ -1,94 +1,111 @@
 # Magic Number Test
 
-## 🔍 Descrição do Problema
-O **Magic Number Test** ocorre quando asserções em um método de teste contêm literais numéricos como parâmetros, sem que seu significado seja claro. Números mágicos devem ser substituídos por constantes nomeadas, onde o nome descreve a origem do valor ou o que ele representa Esses "números mágicos" tornam o teste mais difícil de ler e entender, pois é necessário inferir o propósito de cada valor diretamente do contexto.
+## Description
+
+**Magic Number Test** occurs when assertions in a test method use numeric literals whose meaning is not explicitly clear. These values appear directly in assertions or test setup without being associated with named constants that explain their origin or intent.
+
+Such “magic numbers” reduce test readability and comprehension, as developers are forced to infer the purpose of each value solely from the surrounding context.
 
 ---
 
-## ⚠️ Sintomas e Impacto
-- **Dificuldade de Entendimento**: Outros desenvolvedores têm dificuldade para entender o propósito dos valores específicos usados nos testes.
-- **Alta Manutenção**: Se os valores específicos mudarem, os testes podem precisar de atualizações em múltiplos locais, aumentando a chance de erros.
-- **Redução de Flexibilidade**: Podem dificultar a adaptação do código a mudanças nos requisitos, pois o número exato precisa ser localizado e ajustado no código.
+## Symptoms and Impact
+
+The presence of **Magic Number Test** may result in:
+
+- **Reduced Readability**: The intent of the test becomes unclear, especially for developers unfamiliar with the domain.
+- **Higher Maintenance Cost**: When expected values change, multiple hard-coded numbers must be updated, increasing the risk of inconsistencies.
+- **Lower Test Expressiveness**: Tests lose their role as clear, executable documentation of system behavior.
 
 ---
 
-## 🔑 Critérios de Identificação
-Para identificar o **Magic Number Test**, observe:
-- Testes que utilizam números diretamente, sem variáveis ou constantes nomeadas que expliquem seu significado.
-- Valores numéricos arbitrários usados repetidamente em múltiplos locais de um teste sem explicação.
+## Identification Criteria
+
+A test is likely to exhibit the **Magic Number Test** smell if it meets one or more of the following conditions:
+
+- Numeric literals are used directly in assertions without descriptive constants.
+- The same numeric values appear multiple times in a test without explanation.
+- The meaning or origin of a numeric value is not evident from the test name or structure.
 
 ---
 
-## ✅ Exemplo de Código
+## Code Examples
 
-### Exemplo com Magic Number Test
+### Example with Magic Number Test
 
 ```dart
 import 'package:test/test.dart';
 
 void main() {
-  test('Calculate Discount with Magic Numbers', () {
-    final discount = calculateDiscount(150);  // 150 é um número mágico
+  test('Calculate discount with magic numbers', () {
+    final discount = calculateDiscount(150); // Magic number
     
-    expect(discount, equals(20));  // 20 é um número mágico
+    expect(discount, equals(15)); // Magic number
   });
 }
 
 double calculateDiscount(int basePrice) {
-  return basePrice * 0.1;  
+  return basePrice * 0.1;
 }
 ```
 
-### Exemplo sem Magic Number Test
+In this example, the values `150` and `15` have implicit meaning that must be inferred, reducing clarity and maintainability.
+
+---
+
+### Example without Magic Number Test
 
 ```dart
 import 'package:test/test.dart';
 
 void main() {
-  test('Calculate Discount without Magic Numbers', () {
-    const int basePrice = 150;  // Definição clara do preço base
-    const int expectedDiscount =  15;  // Definição clara do desconto esperado
-    
+  test('Calculate discount without magic numbers', () {
+    const int basePrice = 150;
+    const int expectedDiscount = 15;
+
     final discount = calculateDiscount(basePrice);
-    expect(discount, equals(expectedDiscount), reason: "Discount should be 15 for base price of 150");
+
+    expect(
+      discount,
+      equals(expectedDiscount),
+      reason: 'Expected a 10% discount for a base price of 150',
+    );
   });
 }
 
 double calculateDiscount(int basePrice) {
-  const double discountRate = 0.1;  // Taxa de desconto bem definida
-  return basePrice * discountRate;  // Aplica o desconto baseado na taxa
+  const double discountRate = 0.1;
+  return basePrice * discountRate;
 }
-
 ```
 
----
-
-## 🚀 Correções Sugeridas
-Para resolver o problema de **Magic Number Test**:
-
-- **Use Constantes Nomeadas**: Defina os valores em constantes com nomes descritivos para indicar o propósito de cada número.
-- **Documente o Propósito dos Valores**: Inclua um comentário ou mensagem que explique por que valores específicos são esperados no teste..
+By introducing named constants, the test clearly communicates the intent and meaning of each value.
 
 ---
 
-## 🌟 Exceções e Casos Especiais
-Em alguns testes triviais, onde o número é autoexplicativo e não representa um valor especial (por exemplo, `0` para inicialização), o uso direto pode ser aceitável. No entanto, qualquer valor com significado específico deve ser nomeado.
+## Recommended Refactorings
+
+To eliminate **Magic Number Test**, the following practices are recommended:
+
+* **Replace Literals with Named Constants**: Use constants with descriptive names to clarify the meaning of numeric values.
+* **Align Constants with Domain Concepts**: Whenever possible, reflect business rules or domain terminology in constant names.
+* **Document Non-Obvious Values**: When a number represents a specific rule or threshold, provide additional context through assertion messages or comments.
 
 ---
 
-## 🛠 Ferramentas de Detecção
-- **Linters Configuráveis**: Ferramentas como `dart analyze` podem ser ajustadas para detectar valores numéricos não documentados.
-- **Ferramentas de Análise de Código**: Ferramentas como **SonarQube** ajudam a identificar e sinalizar o uso de números mágicos no código.
+## Exceptions and Special Cases
+
+In trivial cases where a numeric value is universally understood and carries no special meaning (for example, `0` for initialization or `1` for a single occurrence), the direct use of numeric literals may be acceptable. However, any value representing a business rule, threshold, or expected outcome should be explicitly named.
 
 ---
 
-## 📝 Nota
-A remoção de números mágicos em testes ajuda a tornar o código mais legível e fácil de manter, especialmente em sistemas que exigem alta confiabilidade.
+## Final Remarks
+
+Removing magic numbers from tests improves clarity, expressiveness, and long-term maintainability. Well-named constants allow tests to serve as precise and reliable documentation of expected system behavior.
 
 ---
 
-## 📚 Referências e Estudos Relacionados
-- Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
-- Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
-- Martin, R. C. (2008). *Clean Code: A Handbook of Agile Software Craftsmanship*
+## References
 
+* Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
+* Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
+* Martin, R. C. (2008). *Clean Code: A Handbook of Agile Software Craftsmanship*

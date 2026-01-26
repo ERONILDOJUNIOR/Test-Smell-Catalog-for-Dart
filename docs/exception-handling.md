@@ -1,157 +1,145 @@
 # Exception Handling
 
+## Description
 
-## 🔍 Descrição do Problema
+**Exception Handling** as a *test smell* occurs when a test method in Dart relies on an exception being thrown by production code but fails to use the appropriate testing framework features (`package:test` or `flutter_test`) to **explicitly assert** that the exception occurs. This can manifest as missing exception capture and verification, or incorrect use of `try-catch` blocks that mask failures or reduce test readability.
 
-**Exception Handling** como um *test smell* ocorre quando um método de teste em Dart depende de uma exceção ser lançada pelo código de produção, mas o teste falha em usar os recursos apropriados do framework de testes (`package:test` ou `flutter_test`) para **verificar explicitamente** essa exceção. Isso pode se manifestar pela falta de captura e verificação da exceção, ou pelo uso incorreto de blocos `try-catch` dentro do teste de forma que mascare a falha ou a torne menos legível.
+Tests that do not properly verify exceptions can leave significant gaps in coverage and compromise confidence in system robustness, since expected error behaviors are not confirmed.
 
-Testes que não verificam corretamente as exceções podem levar a lacunas significativas na cobertura de testes e comprometem a confiança na robustez do sistema, pois comportamentos de erro esperados não estão sendo confirmados.
+---
 
------
+## Symptoms and Impact
 
-## ⚠️ Sintomas e Impacto
+* **Insufficient Coverage**: Improper exception handling results in incomplete test coverage, where critical failure scenarios are not verified.
+* **Undetected Unexpected Behavior**: If an exception is ignored or not properly verified, unexpected behaviors may go unnoticed during testing, leading to production failures.
+* **Difficult Debugging**: Poorly structured tests that do not idiomatically capture or verify exceptions make root cause analysis harder, as exceptions may terminate the test generically without context.
+* **Fragile Tests**: Using generic `try-catch` blocks can allow a test to pass even if an unexpected exception is thrown, masking errors.
 
-  * **Cobertura Insuficiente**: A falta de tratamento adequado para exceções resulta em uma cobertura de teste incompleta, onde cenários de falha críticos não são verificados.
-  * **Comportamento Inesperado Não Detectado**: Se uma exceção for ignorada ou não for verificada corretamente, comportamentos inesperados podem não ser detectados durante os testes, levando a falhas em produção.
-  * **Dificuldade de Depuração**: Testes mal estruturados que não capturam ou verificam exceções de forma idiomática podem dificultar a identificação da causa raiz de falhas em sistemas complexos, pois a exceção pode "estourar" o teste de forma genérica, sem um contexto claro.
-  * **Testes Frágeis**: A dependência de `try-catch` genéricos pode fazer com que o teste passe mesmo se uma exceção diferente da esperada for lançada.
+---
 
------
+## Identification Criteria
 
-## 🔑 Critérios de Identificação
+Look for the **Exception Handling** test smell in cases where:
 
-Para identificar o **Exception Handling** como um *test smell*, procure por:
+* A test executes an operation known to throw an exception without using `expect(() => ..., throwsA(...))` or similar.
+* A test contains a `try-catch` block but does not leverage the testing framework’s exception matchers (e.g., `throwsA`, `throwsFormatException`, `isA<MyCustomException>`).
+* Tests simply assume that an exception will stop execution, without asserting the exception type or message.
 
-  * Métodos de teste onde uma operação que sabidamente pode lançar uma exceção é executada sem um `expect(() => ..., throwsA(...))` ou similar.
-  * Um método de teste que contém um bloco `try-catch` que não utiliza os *matchers* de exceção do framework de testes (ex: `throwsA`, `throwsFormatException`, `isA<MyCustomException>`).
-  * Testes que apenas esperam que a exceção pare a execução do teste, sem verificar o *tipo* ou a *mensagem* da exceção.
+---
 
------
+## Example Code
 
-## ✅ Exemplo de Código
-
-### Exemplo com Exception Handling (Test Smell)
-
-Neste exemplo, o teste `Teste de Divisão por Zero, exemplo 03` executa uma divisão por zero, o que naturalmente lançará uma exceção de tempo de execução (`_CastError` ou `IntegerDivisionByZeroException` em Dart puro, dependendo do contexto). No entanto, o teste não tem uma expectativa explícita para essa exceção. Ele espera um resultado numérico (`expect(result, 0)`), que nunca será alcançado, e o teste falhará com um erro não tratado, em vez de passar confirmando a exceção.
+### Example with Exception Handling (Test Smell)
 
 ```dart
 import 'package:flutter_test/flutter_test.dart';
 
-// Função de produção que pode lançar uma exceção (divisão por zero)
+// Production function that may throw an exception (division by zero)
 double divide(int a, int b) {
-  // Em Dart, a divisão por zero com inteiros lançaria IntegerDivisionByZeroException
-  // e com double resulta em Infinity ou NaN. Para este exemplo, vamos simular
-  // um cenário que lançaria uma exceção clara para a intenção do smell.
   if (b == 0) {
-    throw ArgumentError('Não é possível dividir por zero.');
+    throw ArgumentError('Cannot divide by zero.');
   }
   return a / b;
 }
 
 void main() {
-  // Testes que validam o comportamento esperado para entradas válidas
-  test('Deve dividir dois números positivos corretamente', () {
+  test('Divides two positive numbers correctly', () {
     var result = divide(10, 2);
-    expect(result, 5.0, reason: "10 dividido por 2 deve ser 5.0");
+    expect(result, 5.0, reason: "10 divided by 2 should be 5.0");
   });
 
-  test('Deve dividir um número positivo por um negativo corretamente', () {
+  test('Divides positive by negative correctly', () {
     var result = divide(10, -1);
-    expect(result, -10.0, reason: "10 dividido por -1 deve ser -10.0");
+    expect(result, -10.0, reason: "10 divided by -1 should be -10.0");
   });
 
-  test('Teste de Divisão por Zero (com smell)', () {
-    // Ação que se espera que lance uma exceção
-    var result = divide(10, 0); // Isso Lançará uma ArgumentError
-    
-    // Expectativa incorreta: o teste espera um valor, não a exceção.
-    // O teste irá falhar devido à exceção não tratada, não porque a expectativa foi explicitamente violada.
-    expect(result, 0.0, reason: "Esperava-se 0.0, mas uma exceção será lançada antes.");
+  test('Division by zero (with smell)', () {
+    // Action that is expected to throw
+    var result = divide(10, 0); // Throws ArgumentError
+
+    // Incorrect expectation: test expects a value instead of the exception
+    expect(result, 0.0, reason: "Expected 0.0, but an exception will occur before.");
   });
 }
 ```
 
-### Exemplo sem Exception Handling (Correção Idiomática em Dart)
+> ⚠️ Issue: This test will fail due to an unhandled exception instead of explicitly verifying that an exception occurs.
 
-Neste exemplo, o teste `Deve lançar ArgumentError ao dividir por zero` utiliza o *matcher* `throwsA(isA<ArgumentError>())` do `package:test` para verificar explicitamente que o código lança o tipo de exceção esperado quando a divisão por zero ocorre. Este é o modo preferencial em Dart.
+---
+
+### Example without Exception Handling (Idiomatic Dart)
 
 ```dart
 import 'package:flutter_test/flutter_test.dart';
 
-// Função de produção que pode lançar uma exceção (divisão por zero)
 double divide(int a, int b) {
   if (b == 0) {
-    throw ArgumentError('Não é possível dividir por zero.'); // Lança ArgumentError
+    throw ArgumentError('Cannot divide by zero.');
   }
   return a / b;
 }
 
 void main() {
-  // Testes que validam o comportamento esperado para entradas válidas
-  test('Deve dividir dois números positivos corretamente', () {
+  test('Divides two positive numbers correctly', () {
     var result = divide(10, 2);
-    expect(result, 5.0, reason: "10 dividido por 2 deve ser 5.0");
+    expect(result, 5.0, reason: "10 divided by 2 should be 5.0");
   });
 
-  test('Deve dividir um número positivo por um negativo corretamente', () {
+  test('Divides positive by negative correctly', () {
     var result = divide(10, -1);
-    expect(result, -10.0, reason: "10 dividido por -1 deve ser -10.0");
+    expect(result, -10.0, reason: "10 divided by -1 should be -10.0");
   });
 
-  test('Deve lançar ArgumentError ao dividir por zero', () {
-    // Arrange & Act: O expect com throwsA espera uma função anônima que executa a ação.
+  test('Throws ArgumentError when dividing by zero', () {
     expect(
-      () => divide(10, 0), // O código que esperamos que lance a exceção
-      throwsA(isA<ArgumentError>()), // O matcher que verifica o tipo da exceção
-      reason: "Deve lançar um ArgumentError quando o divisor é zero",
+      () => divide(10, 0),            // Code expected to throw
+      throwsA(isA<ArgumentError>()),  // Matcher that verifies exception type
+      reason: "Should throw ArgumentError when divisor is zero",
     );
   });
 
-  // Exemplo adicional: verificando a mensagem da exceção
-  test('Deve lançar ArgumentError com mensagem específica ao dividir por zero', () {
+  test('Throws ArgumentError with specific message when dividing by zero', () {
     expect(
       () => divide(10, 0),
       throwsA(
         isA<ArgumentError>()
-          .having((e) => e.message, 'message', contains('Não é possível dividir por zero.')),
+          .having((e) => e.message, 'message', contains('Cannot divide by zero.')),
       ),
-      reason: "A mensagem do erro deve indicar a impossibilidade de divisão por zero",
+      reason: "Error message should indicate division by zero is not allowed",
     );
   });
 }
 ```
 
------
+---
 
-## 🚀 Correções Sugeridas
+## Recommended Fixes
 
-Para resolver o **Exception Handling** como um *test smell*:
+* **Use Framework Exception Matchers**: In Dart, use `expect(() => functionThatThrows(), throwsA(isA<ExpectedExceptionType>()))` to ensure the function actually throws an exception of the expected type.
+* **Verify Exception Type and Message**: Beyond just checking that an exception occurs, use `isA<Type>()` to assert the exception type and, if needed, `.having((e) => e.message, 'message', contains('expected message'))` to assert the message. This ensures the correct exception is thrown for the correct reason.
+* **Avoid `try-catch` in Tests for Validation**: Unless testing a recovery behavior, using `try-catch` to validate exceptions masks test intent and is less readable than framework matchers.
 
-  * **Use os Matchers de Exceção do Framework**: Em Dart, utilize `expect(() => suaFuncaoQueLancaExcecao(), throwsA(isA<TipoDaExcecaoEsperada>()))`. Isso verifica que a função de fato lança uma exceção e, opcionalmente, que é do tipo esperado.
-  * **Verifique o Tipo e/ou a Mensagem da Exceção**: Vá além de apenas verificar se uma exceção é lançada. Use `isA<Tipo>()` para verificar o tipo da exceção e, se necessário, `having((e) => e.message, 'message', contains('mensagem esperada'))` para verificar o conteúdo da mensagem da exceção. Isso garante que a exceção correta está sendo lançada pelo motivo certo.
-  * **Evite Blocos `try-catch` no Teste para Validação**: Salvo raras exceções (como testar um comportamento de recuperação após o catch), não use `try-catch` para validar que uma exceção foi lançada. Isso mascara a intenção do teste e é menos legível do que os *matchers* de exceção do framework.
+---
 
------
+## Exceptions and Special Cases
 
-## 🌟 Exceções e Casos Especiais
+A `try-catch` block may be justified in rare scenarios, such as:
 
-Em alguns casos muito específicos, um bloco `try-catch` dentro de um teste pode ser justificado, por exemplo:
+* Testing client code reactions to an exception thrown by the SUT.
+* Complex integration tests where you simulate a service failure and verify downstream data flow, not just that the exception was thrown.
 
-  * Para testar um cenário onde o código *cliente* (dentro do teste) precisa **reagir** a uma exceção lançada pelo SUT, e você está testando essa reação.
-  * Em testes de integração complexos, onde você simula uma falha em um serviço e quer verificar o fluxo de dados através de várias camadas após essa falha, não apenas se a exceção foi lançada.
+For most unit tests that aim to validate that an exception is thrown under certain conditions, using `expect` with `throwsA` is the preferred and idiomatic approach.
 
-No entanto, para a maioria dos testes unitários focados em validar que uma exceção é lançada sob certas condições, o uso de `expect` com `throwsA` é a abordagem correta e preferencial.
+---
 
------
+## Detection Tools
 
-## 🛠 Ferramentas de Detecção
+* **Configurable Linter**: Tools like `dart analyze` with `package:lints` or `flutter_lints` can flag `try-catch` usage in tests or missing `expect(..., throwsA(...))` on operations known to throw exceptions.
+* **Test Coverage**: Tools like `dart test --coverage` can identify code paths that throw exceptions which are not covered by explicit exception checks.
+* **Code Review**: Peer review is effective for identifying tests that assume exceptions occur but do not verify them idiomatically.
 
-  * **Linter Configurável**: Ferramentas como `dart analyze` (com as regras de lint do `package:lints` ou `flutter_lints`) podem ser configuradas para sinalizar o uso de `try-catch` em blocos de teste ou a ausência de `expect(..., throwsA(...))` em chamadas que sabidamente podem lançar exceções.
-  * **Cobertura de Testes**: Ferramentas de cobertura de teste (`dart test --coverage`) podem ajudar a identificar cenários de falha (caminhos de código que lançam exceções) que não estão sendo exercitados por testes que verificam explicitamente essas exceções.
-  * **Revisão de Código (Code Review)**: A revisão por pares é eficaz para identificar testes que esperam uma exceção, mas não a verificam de forma idiomática ou explícita.
+---
 
------
+## Note
 
-## 📝 Nota
-
-O **Exception Handling** como um *test smell* pode comprometer seriamente a robustez de um sistema. Ignorar ou verificar incorretamente as exceções durante os testes significa que seu sistema pode falhar de maneiras inesperadas em produção. Garantir que as exceções sejam corretamente lançadas e verificadas durante os testes, utilizando as ferramentas apropriadas do framework, ajuda a prevenir falhas em produção e aumenta a confiança na qualidade do seu código Dart.
+Exception handling as a *test smell* can seriously undermine system robustness. Ignoring or incorrectly verifying exceptions during testing means your system may fail unpredictably in production. Ensuring exceptions are correctly thrown and verified using framework tools increases confidence in the reliability and quality of your Dart code.

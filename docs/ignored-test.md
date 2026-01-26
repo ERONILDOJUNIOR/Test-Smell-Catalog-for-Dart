@@ -1,130 +1,142 @@
 # Ignored Test
 
-## 🔍 Descrição do Problema
-O **Ignored Test** ocorre quando um teste é desativado ou ignorado intencionalmente usando anotações como `@Skip` (ou `@ignore` em algumas linguagens). Ignorar testes é comum em situações temporárias, mas pode se tornar um problema quando muitos testes ficam desativados indefinidamente, resultando em uma falsa impressão de confiabilidade no sistema.
+## Description
+
+**Ignored Test** occurs when a test case is intentionally disabled and excluded from execution, typically through mechanisms such as `skip`, `@Skip`, or similar annotations provided by the testing framework. While temporarily ignoring tests may be useful during development or investigation of known issues, permanently ignored tests undermine the reliability of the test suite.
+
+When ignored tests accumulate over time, they create the illusion that the system is adequately tested, while in reality significant portions of expected behavior are no longer being verified.
 
 ---
 
-## ⚠️ Sintomas e Impacto
-- **Falsa Segurança**: Pode parecer que o sistema está passando em todos os testes, quando, na realidade, os testes ignorados ocultam potenciais problemas.
-- **Débito Técnico**: Ignorar testes sem documentação do motivo ou sem prazo para resolução cria uma dívida técnica crescente.
-- **Falta de Confiabilidade**: O sistema se torna menos confiável, pois a cobertura real de testes está incompleta.
+## Symptoms and Impact
+
+The presence of **Ignored Test** may lead to:
+
+- **False Sense of Reliability**: The test suite appears to pass successfully while critical checks are silently bypassed.
+- **Hidden Defects**: Bugs covered only by ignored tests may reach production unnoticed.
+- **Accumulation of Technical Debt**: Ignored tests often remain disabled indefinitely, increasing maintenance effort and reducing confidence in the test suite.
+- **Reduced Test Coverage Transparency**: It becomes unclear which behaviors are actively validated and which are no longer checked.
 
 ---
 
-## 🔑 Critérios de Identificação
-Para identificar o **Ignored Test**, busque:
-- Testes marcados com `@Skip` ou `@ignore`.
-- Testes com comentários como "TODO", "desativado temporariamente", ou "ignorado por erro".
+## Identification Criteria
+
+A test is considered an **Ignored Test** if it meets one or more of the following conditions:
+
+- The test is explicitly marked as skipped using `skip`, `@Skip`, or equivalent mechanisms.
+- The test contains comments such as *"temporarily disabled"*, *"TODO"*, or *"ignored due to failure"* without a clear resolution plan.
+- The test is permanently excluded from execution in continuous integration pipelines.
 
 ---
 
-## ✅ Exemplo de Código
+## Code Examples
 
-### Exemplo com Ignored Test
+### Example with Ignored Test
 
 ```dart
 import 'package:test/test.dart';
 
 class User {
-  int id;
+  final int id;
   bool logged = false;
 
   User(this.id) {
     logged = true;
   }
 
-  isLoggedIn() {
-    if (logged == true) {
-      return true;
-    }
-    return false;
+  bool isLoggedIn() {
+    return logged;
   }
 }
 
 void main() {
-  // Pula
-  test('Teste a ser ignorado, exemplo 01', () {
-    final user = User(01);
+  test('Ignored test example 01', () {
+    final user = User(1);
     expect(user.isLoggedIn(), true);
   }, skip: true);
 
-  // Pula
-  test('Teste a ser ignorado, exemplo 02', () {
-    final user = User(01);
+  test('Ignored test example 02', () {
+    final user = User(1);
     expect(user.isLoggedIn(), true);
-  }, skip: "pula");
+  }, skip: 'Temporarily disabled due to instability');
 
-  // Não pula
-  test('Teste a ser ignorado, exemplo 03', () {
-    final user = User(01);
+  test('Active test example', () {
+    final user = User(1);
     expect(user.isLoggedIn(), true);
   }, skip: false);
 }
 ```
 
-### Exemplo sem Ignored Test
+In this example, two tests are excluded from execution. Unless carefully tracked, these ignored tests may never be re-enabled, silently reducing effective test coverage.
+
+---
+
+### Example without Ignored Test
 
 ```dart
 import 'package:test/test.dart';
 
 class User {
-  int id;
+  final int id;
   bool logged = false;
 
   User(this.id) {
     logged = true;
   }
 
-  isLoggedIn() {
-    if (logged == true) {
-      return true;
-    }
-    return false;
+  bool isLoggedIn() {
+    return logged;
   }
 }
 
-void main() {  
-  test('Teste a ser ignorado, exemplo 01', () {
-    final user = User(01);
+void main() {
+  test('User should be logged in after creation', () {
+    final user = User(1);
     expect(user.isLoggedIn(), true);
   });
- 
-  test('Teste a ser ignorado, exemplo 02', () {
-    final user = User(01);
-    expect(user.isLoggedIn(), true);
-  }, skip: false);
+
+  test('User login state should remain true', () {
+    final user = User(1);
+    expect(user.isLoggedIn(), isTrue);
+  });
 }
 ```
 
----
-
-## 🚀 Correções Sugeridas
-Para resolver o problema do **Ignored Test**:
-
-- **Justifique a Ignoração**: Adicione uma descrição clara do motivo para o teste ser ignorado e, se possível, um prazo para sua reativação.
-- **Remoção do Teste**: Caso não seja necessario o teste para o contexto da aplicação, remova-o.
-- **Monitore Ignorados**: Configure o pipeline de CI/CD para alertar sobre testes ignorados que persistem por muito tempo.
+In this version, all tests are actively executed, ensuring that expected behavior is continuously verified.
 
 ---
 
-## 🌟 Exceções e Casos Especiais
-Ignorar um teste é aceitável em situações de problemas temporários com uma resolução programada. Nesses casos, a justificativa e o plano de ação devem estar bem documentados.
+## Recommended Refactorings
+
+To mitigate the **Ignored Test** smell, consider the following practices:
+
+* **Avoid Permanent Skips**: Ignoring a test should be a temporary measure, not a long-term solution.
+* **Document the Reason Clearly**: When a test must be skipped, provide a precise explanation and reference to an issue, ticket, or task.
+* **Define a Resolution Plan**: Establish conditions under which the test will be re-enabled.
+* **Monitor Skipped Tests**: Configure CI pipelines to report or fail builds when skipped tests exceed an acceptable threshold.
 
 ---
 
-## 🛠 Ferramentas de Detecção
-- **Linters e Analisadores Estáticos**: Ferramentas como `dart analyze` podem verificar o uso de `@Skip`.
-- **SonarQube**: Com plugins configuráveis, o SonarQube pode alertar sobre a presença de testes ignorados sem justificativa.
+## Exceptions and Special Cases
+
+Ignoring a test may be acceptable when:
+
+* A known defect is under active investigation and the test failure blocks unrelated development.
+* External dependencies (e.g., third-party services) are temporarily unavailable.
+
+In such cases, the test should be reactivated as soon as the blocking issue is resolved, and the skip should be treated as a short-lived exception.
 
 ---
 
-## 📝 Nota
-Utilizar o `@Skip` como solução rápida pode ser útil em situações temporárias, mas os testes ignorados devem ser monitorados para evitar impacto na qualidade do software.
+## Final Remarks
+
+Ignored Tests erode the trustworthiness of test suites over time. Although skipping tests can be useful as a short-term strategy, unmanaged ignored tests compromise test coverage, mask defects, and increase technical debt. A high-quality test suite should minimize skipped tests and ensure that all critical behaviors are continuously validated.
 
 ---
 
-## 📚 Referências e Estudos Relacionados
-- Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
-- Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
-- Google Testing Blog (2008). "Flaky Tests: The Good, The Bad, and The Ugly."
+## References
+
+* Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
+* Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
+* Google Testing Blog (2008). *Flaky Tests: The Good, The Bad, and The Ugly*
+

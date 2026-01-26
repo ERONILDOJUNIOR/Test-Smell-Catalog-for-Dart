@@ -1,96 +1,140 @@
 # Assertion Roulette
 
-## 🔍 Descrição do Problema
+## Description
 
-**Assertion Roulette** ocorre quando um método de teste em Dart contém múltiplas **expectativas** (`expect`) sem uma mensagem descritiva ou contexto adequado. Isso torna difícil identificar qual expectativa falhou e por quê, prejudicando a legibilidade e a manutenção do teste.
+**Assertion Roulette** occurs when a test method contains multiple assertions without descriptive messages or sufficient contextual information. In such cases, when a test fails, it becomes unclear which assertion caused the failure and for what reason. This significantly reduces the readability, diagnosability, and maintainability of test code.
 
-Em outras palavras, o **Assertion Roulette** ocorre quando o teste "joga a roleta" com o desenvolvedor, deixando-o adivinhar qual expectativa falhou.
+The term reflects the uncertainty faced by developers when interpreting failing tests, as they are effectively forced to "guess" which condition was violated.
 
------
+---
 
-## ⚠️ Sintomas e Impacto
+## Symptoms and Impact
 
-  * **Dificuldade de Depuração**: Quando uma expectativa falha, o motivo exato não fica claro, especialmente se mais de duas expectativas estão presentes.
-  * **Redução da Manutenção**: Esse problema pode dificultar o trabalho de outros desenvolvedores ao tentar entender o teste, aumentando o custo de manutenção.
-  * **Baixa Legibilidade**: O código se torna confuso, dificultando a identificação das condições testadas.
+The presence of **Assertion Roulette** may lead to the following issues:
 
------
+* **Reduced Debugging Efficiency**: When an assertion fails, the lack of contextual information makes it difficult to quickly identify the root cause, particularly in tests with multiple assertions.
+* **Increased Maintenance Effort**: Tests affected by this smell are harder to understand and modify, increasing long-term maintenance costs.
+* **Poor Readability**: The intent of the test becomes unclear, reducing its value as documentation of expected system behavior.
 
-## 🔑 Critérios de Identificação
+---
 
-Para identificar o **Assertion Roulette**, procure por:
+## Identification Criteria
 
-  * Métodos de teste que contenham múltiplas **expectativas** (`expect`) sem mensagens descritivas.
-  * Testes os quais não especificam claramente qual a condição testada em questão.
+A test is likely to exhibit **Assertion Roulette** if it meets one or more of the following conditions:
 
------
+* The test method contains multiple assertions without descriptive failure messages.
+* The assertions do not clearly communicate which specific condition or requirement is being verified.
 
-## ✅ Exemplo de Código
+---
 
-### Exemplo com Assertion Roulette
+## Code Examples
+
+### Example with Assertion Roulette
 
 ```dart
-import 'package:flutter_test/flutter_test.dart'; // Ou 'package:test/test.dart;' para testes de unidade sem Flutter
+import 'package:flutter_test/flutter_test.dart'; // Or 'package:test/test.dart' for pure unit tests
 
 void main() {
-  test('Teste com Assertion Roulette', () {
-    final valores = [10, 20, 30];
+  test('Test with Assertion Roulette', () {
+    final values = [10, 20, 30];
 
-    expect(valores.length, 4); // Falha possível, mas sem indicar o motivo
-    expect(valores[0], 5); // Outra falha possível, sem explicação
-    expect(valores.contains(50), true); // Falha possível, sem contexto
+    expect(values.length, 4);
+    expect(values[0], 5);
+    expect(values.contains(50), true);
   });
 }
 ```
 
-### Exemplo sem Assertion Roulette
+In this example, if the test fails, it is not immediately clear which expectation failed or why.
+
+### Example without Assertion Roulette
 
 ```dart
-import 'package:flutter_test/flutter_test.dart'; // Ou 'package:test/test.dart;' para testes de unidade sem Flutter
+import 'package:flutter_test/flutter_test.dart'; // Or 'package:test/test.dart' for pure unit tests
 
 void main() {
-  test('Teste sem Assertion Roulette', () {
-    final valores = [10, 20, 30];
+  test('Test without Assertion Roulette', () {
+    final values = [10, 20, 30];
 
-    expect(valores.length, 4, reason: "A lista deve conter exatamente 4 elementos");
-    expect(valores[0], 5, reason: "O primeiro valor da lista deveria ser 5");
-    expect(valores.contains(50), true, reason: "A lista deveria conter o valor 50");
+    expect(values.length, 4, reason: 'The list is expected to contain exactly four elements');
+    expect(values[0], 5, reason: 'The first element of the list is expected to be 5');
+    expect(values.contains(50), true, reason: 'The list is expected to contain the value 50');
   });
 }
 ```
 
------
+By providing explicit reasons, each assertion clearly communicates its intent, making failures easier to diagnose.
 
-## 🚀 Correções Sugeridas
+---
 
-Para resolver o Assertion Roulette:
+## Recommended Refactorings
 
-  * **Adicione Mensagens de Descrição**: Inclua mensagens para cada **expectativa** usando o parâmetro `reason`, explicando a condição esperada e o motivo da verificação.
-  * **Reduza a Quantidade de Expectativas**: Se possível, divida o teste em testes menores, o que melhora a clareza e torna o código mais modular.
-  * **Utilize Mocks e Verificações Explícitas**: Em casos mais complexos, considere usar um framework de mock (como `mockito`) para isolar unidades de código e verificar interações com dependências, permitindo que você crie **expectativas** mais focadas.
+To mitigate **Assertion Roulette**, the following practices are recommended:
 
------
+* **Provide Descriptive Assertion Messages**: Use the `reason` parameter (or equivalent) to explain the expected condition and its purpose.
+* **Limit the Number of Assertions per Test**: When feasible, split complex tests into smaller, focused tests that validate a single behavior.
+* **Use Explicit Verification Strategies**: In more complex scenarios, consider employing mocking frameworks (e.g., `mockito`) to isolate behaviors and make assertions more precise and meaningful.
 
-## 🌟 Exceções e Casos Especiais
+---
 
-Em testes simples ou triviais com uma única **expectativa**, pode ser aceitável omitir uma mensagem de contexto. Contudo, para qualquer teste com múltiplas verificações, adicionar descrições é recomendado.
+## Exceptions and Special Cases
 
------
+In simple or trivial tests containing a single assertion, the absence of a descriptive message may be acceptable. However, for any test that validates multiple conditions, providing explicit context is strongly recommended.
 
-## 🛠 Ferramentas de Detecção
+---
 
-  * **Linter Configurável**: Ferramentas como `dart analyze` podem ser configuradas com regras personalizadas para identificar métodos de teste com múltiplas expectativas sem o parâmetro `reason`.
-  * **Plugins para Test Smells**: Ferramentas de análise de código estática como **SonarQube** podem ser estendidas com regras personalizadas para Dart para monitorar múltiplas expectativas sem descrições explícitas.
+## Notes
 
------
+**Assertion Roulette** is particularly prevalent in large or complex test suites, where tests often validate multiple aspects of system behavior. Addressing this smell improves test clarity, facilitates faster debugging, and enhances overall test quality.
 
-## 📝 Nota
+---
 
-O Assertion Roulette é especialmente relevante em projetos complexos onde múltiplas condições são verificadas em cada teste. Este guia ajuda a garantir que cada falha seja clara e fácil de rastrear, melhorando a qualidade e a manutenibilidade do seu código Dart.
+## Practical Considerations and Detection Guidelines
 
------
+### Role of `verify` in Dart Tests
 
-## 📚 Referências e Estudos Relacionados
+In the Dart testing ecosystem, particularly when using mocking frameworks such as `mockito`, the `verify` function is commonly used to assert interactions with mocked dependencies (for example, whether a method was called, how many times it was invoked, or with which arguments).
 
-  * Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
-  * Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
+For the purpose of **Assertion Roulette** detection, calls to `verify` are **not considered assertions**. Only `expect` statements are taken into account when identifying this smell.
+
+This distinction is deliberate. While `expect` validates observable outcomes and system state, `verify` focuses on interaction-based behavioral checks. Including `verify` calls in the assertion count would lead to false positives and reduce the precision of the detection strategy.
+
+---
+
+### Number of `expect` Statements and Smell Classification
+
+The detection of **Assertion Roulette** depends on both the number of `expect` statements and the presence (or absence) of explicit diagnostic context, typically provided through the `reason` parameter.
+
+The following rules apply:
+
+* A test may contain **exactly one `expect` statement without a `reason`** and still **not** be classified as Assertion Roulette.
+
+  * In this case, it is assumed that the **test name itself** provides sufficient semantic context to describe the intent of the assertion.
+
+* If a test contains **two or more `expect` statements without a `reason`**, the Assertion Roulette smell is present.
+
+  * Each additional undocumented assertion increases ambiguity and makes failure diagnosis more difficult.
+
+* If a test contains multiple `expect` statements and **only one lacks a `reason`**, the test is **not** considered to exhibit Assertion Roulette.
+
+  * The undocumented assertion is treated as the primary validation described by the test name.
+
+* `verify` statements are **ignored** when counting assertions for smell detection.
+
+---
+
+### Summary Rule
+
+A Dart test exhibits the **Assertion Roulette** smell if and only if it contains:
+
+* **More than one `expect` statement without an explicit `reason` parameter**, regardless of the number of `verify` calls present.
+
+This rule balances practical testing conventions in Dart with the need for clear and diagnosable test failures.
+
+---
+
+## References
+
+* Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*.
+* Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*.
+* Van Deursen, A., et al. (2001). "Refactoring Test Code."'

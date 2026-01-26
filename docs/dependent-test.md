@@ -1,127 +1,160 @@
-# Dependent Test
+## Dependent Test – State Sharing via Global Variables
 
-## 🔍 Descrição do Problema
-**Dependent Test** ocorre quando um teste depende do sucesso de outros testes para ser executado corretamente. Esse tipo de teste cria um acoplamento indesejado entre os testes, o que dificulta a execução isolada e a identificação de falhas, além de reduzir a confiabilidade e a independência dos testes.
+### Description
 
----
+A **Dependent Test** also occurs when tests **share mutable global state** and rely on implicit execution order to pass. In this scenario, the outcome of a test depends on whether a previous test has modified a shared variable and whether that state has been properly reset.
 
-## ⚠️ Sintomas e Impacto
-- **Dependência entre Testes**: O teste não pode ser executado de forma isolada, pois depende de outros testes terem sido executados corretamente antes.
-- **Execução Não Determinística**: O resultado do teste pode ser imprevisível se os testes anteriores falharem ou forem modificados.
-- **Dificuldade de Diagnóstico**: Quando um teste depende de outro, pode ser difícil identificar a causa raiz de uma falha, especialmente se o erro não for evidente ou direto.
+This form of dependency is especially dangerous because the test framework may execute tests in a different order, in parallel, or selectively, causing tests to fail intermittently or produce misleading results.
 
 ---
 
-## 🔑 Critérios de Identificação
-Para identificar o **Dependent Test**, procure por:
-- Testes que utilizam o estado ou resultados de testes anteriores para validar seu comportamento.
-- Testes que falham ou têm resultados imprevisíveis dependendo da ordem de execução.
-- Testes que não são independentes e falham se outros testes não forem executados primeiro.
+## Identified Dependent Test Patterns
 
-### Detecção Automática
-Ferramentas de análise de teste podem ser configuradas para detectar dependências entre testes, verificando chamadas a métodos ou valores definidos por testes anteriores.
+The following patterns are **explicitly considered Dependent Test smells** in this catalog.
 
----
+### 1. Shared Global Variables Without Reset
 
-## ✅ Exemplo de Código
+Any **mutable global variable** (`int`, `String`, `List`, `Map`, `bool`, `double`, etc.) that is:
 
-### Exemplo com Dependent Test
+* Modified in one test, and
+* Read or modified in another test, and
+* **Not reset in `setUp()` or `tearDown()`**
 
-```dart
-import 'package:flutter_test/flutter_test.dart';
+creates an execution-order dependency.
 
-void main() {
-  test('Teste de Login', () {
-    var user = createUser();  // Depende do sucesso de outro teste que cria o usuário
-    var session = createSession(user);  // Depende do sucesso de createUser()
-    expect(session.isActive, isTrue, reason: "A sessão deveria estar ativa");
-  });
+This includes primitive types and collections.
 
-  test('Teste de Criação de Usuário', () {
-    var user = createUser();  // Teste que cria o usuário
-    expect(user, isNotNull, reason: "Usuário deveria ser criado com sucesso");
-  });
-}
+#### Why this is a smell
 
-class User {
-  final String name;
-  User({required this.name});
-}
-
-class Session {
-  final User user;
-  Session(this.user);
-
-  bool get isActive => true;
-}
-
-User createUser() {
-  return User(name: "John");
-}
-
-Session createSession(User user) {
-  return Session(user);
-}
-
-
-```
-
-### Exemplo sem Dependent Test
-
-```dart
-import 'package:flutter_test/flutter_test.dart';
-
-void main() {
-  test('Teste de Login', () {
-    var user = User(name: "John");
-    var session = Session(user);
-    expect(session.isActive, isTrue, reason: "A sessão deve estar ativa após o login do usuário");
-  });
-}
-
-class User {
-  final String name;
-  User({required this.name});
-}
-
-class Session {
-  final User user;
-  Session(this.user);
-
-  bool get isActive => true;
-}
-
-
-```
+* Tests become order-dependent.
+* Running a single test in isolation may fail.
+* Running the full suite may pass or fail depending on execution order.
+* Parallel execution becomes unsafe.
 
 ---
 
-## 🚀 Correções Sugeridas
-Para resolver o **Dependent Test**:
+### 2. Multiple Tests Writing and Reading the Same Global State
 
-- **Torne os Testes Independentes**: Garanta que cada teste seja autossuficiente e não dependa de outros testes para ser executado corretamente. Cada teste deve configurar seu próprio ambiente e dados necessários.
-- **Use Mocks ou Stubs**: Em vez de depender de testes anteriores, use mocks ou stubs para simular o comportamento de componentes ou funcionalidades de outros testes.
-- **Organize os Testes para Execução em Qualquer Ordem**: Reestruture os testes para garantir que eles possam ser executados independentemente da ordem em que são chamados.
+When **two or more tests interact with the same global variable**, the dependency grows with each additional test.
 
----
+#### Example Patterns (Conceptual)
 
-## 🌟 Exceções e Casos Especiais
-Em alguns casos, testes que validam integração ou dependem de estados compartilhados podem ser necessários. No entanto, sempre que possível, procure isolar os testes e reduzir dependências.
+* Test A increments a global counter
 
----
+* Test B assumes the counter starts at zero
 
-## 🛠 Ferramentas de Detecção
-- **Linters**: Ferramentas como `dart analyze` podem ser configuradas para identificar testes que dependem de estados ou resultados de outros testes.
-- **Analisadores de Teste**: Ferramentas como SonarQube podem ser configuradas para verificar a execução sequencial e dependências entre testes.
+* Test A sets a message
 
----
+* Test B expects the message to be empty
 
-## 📚 Referências e Estudos Relacionados
-- Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
-- Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
-- Van Deursen, A., et al. (2001). "Refactoring Test Code."
+* Test A adds items to a shared list
+
+* Test B checks the list size
+
+* Test C expects the list to be empty
+
+Each additional test increases the **dependency chain**, multiplying the number of Dependent Test smells.
 
 ---
 
-## 📝 Nota
-Os **Dependent Tests** podem aumentar o tempo de execução de uma suíte de testes e dificultar a identificação de falhas, pois os testes dependem da ordem de execução. Manter os testes independentes é uma prática recomendada para garantir a confiabilidade e a facilidade de manutenção dos testes.
+### 3. Collections Shared Across Tests
+
+Shared collections (`List`, `Map`, `Set`) are particularly problematic.
+
+They are considered **Dependent Test smells** when:
+
+* Items are added or removed in one test
+* Another test assumes a specific collection state
+* No reset is performed between tests
+
+This includes cases where:
+
+* One test fills a cache
+* Another test reads from the cache
+* Another test assumes the cache is empty
+
+Even if the expected value matches, the test is still dependent.
+
+---
+
+### 4. Boolean Flags Used Across Tests
+
+Boolean flags used to represent state transitions are also a source of dependency.
+
+A smell exists when:
+
+* One test sets a flag to `true`
+* Another test assumes the flag is already `true`
+* A later test sets it back to `false`
+
+This creates **implicit sequencing requirements**, which violate test independence.
+
+---
+
+### 5. Numeric Values Modified Incrementally
+
+Numeric globals (`int`, `double`) used in arithmetic across tests are Dependent Tests when:
+
+* One test assigns or modifies the value
+* Another test performs calculations based on the current value
+* A later test expects the initial default value
+
+These tests cannot be executed independently or reordered safely.
+
+---
+
+## What Is NOT Considered a Dependent Test
+
+The following cases are **explicitly excluded** from Dependent Test detection:
+
+### 1. Global Variables Reset in `setUp()`
+
+If a global variable is **fully reset before each test**, it does **not** create a dependency.
+
+Example characteristics:
+
+* Reset happens in `setUp()`
+* All tests start from the same known state
+* No test relies on side effects from previous tests
+
+---
+
+### 2. Local Variables Inside Tests
+
+Variables declared **inside a test body** are always safe.
+
+They:
+
+* Exist only within the test scope
+* Cannot be accessed by other tests
+* Do not introduce shared mutable state
+
+---
+
+### 3. Immutable or Recreated Test Data
+
+Objects or collections created fresh inside each test do not introduce dependencies, even if they contain similar data.
+
+---
+
+## Summary of Detection Rules
+
+A test **must be flagged as a Dependent Test** if:
+
+* It reads or writes **mutable global state**, and
+* That state is accessed by **another test**, and
+* There is **no reset mechanism** ensuring isolation
+
+The **number of Dependent Test smells increases** with the number of tests interacting with the same shared state.
+
+---
+
+## Note
+
+This catalog treats **state-based dependencies** as first-class Dependent Test smells, even when:
+
+* Tests pass consistently in a local environment
+* The dependency is not immediately obvious
+* The shared value happens to match the expected result
+
+The key criterion is **test independence**, not execution success.

@@ -1,133 +1,119 @@
 # Empty Test
 
-## 🔍 Descrição do Problema
+## Description of the Problem
 
-O **Empty Test** ocorre quando uma função de teste (`test` ou `group` sem conteúdo) não contém nenhuma instrução executável ou expectativa (`expect`). Um teste vazio pode ser considerado mais perigoso do que a ausência de um teste, pois o `package:test` (ou `flutter_test`) indicará que o teste **passou**, mesmo que nenhuma verificação real tenha sido feita no código. Em alguns casos, um teste vazio pode ser deixado como um "marcador" ou *placeholder* de que um teste precisa ser implementado, mas ele nunca é de fato completado ou removido.
+An **Empty Test** occurs when a test function (`test`, `testWidgets`, or `group`) does not contain any executable statements or assertions (`expect`). An empty test can be more dangerous than having no test at all, because the Dart `package:test` (or `flutter_test`) framework will report the test as **passing**, even though no real verification has been performed.
 
------
+In some cases, empty tests are left intentionally as *placeholders* to indicate that a test should be implemented later. However, when these placeholders are never completed or removed, they silently degrade the quality and reliability of the test suite.
 
-## ⚠️ Sintomas e Impacto
+---
 
-  * **Falsa Sensação de Segurança**: A presença de testes vazios faz com que as ferramentas de teste reportem um número maior de testes "passando" do que o real, mascarando a falta de cobertura efetiva.
-  * **Ausência de Cobertura de Testes Efetiva**: O teste não verifica nenhum comportamento ou resultado do código de produção, falhando em fornecer qualquer garantia de funcionalidade.
-  * **Poluição no Código**: Testes vazios adicionam ruído à suíte de testes, dificultando a leitura, a compreensão do que está sendo realmente validado e a navegação pela base de testes.
-  * **Débito Técnico Silencioso**: `Empty Test`s deixados como *placeholders* se tornam débito técnico que pode ser esquecido, resultando em funcionalidades críticas sem validação adequada.
+## Symptoms and Impact
 
------
+* **False Sense of Security**
+  Empty tests increase the number of “passing” tests without validating any behavior, misleading developers about the real quality of the system.
 
-## 🔑 Critérios de Identificação
+* **Lack of Effective Test Coverage**
+  The test does not exercise production code or verify expected outcomes, providing no guarantee of correctness.
 
-Para identificar um **Empty Test**, procure por:
+* **Test Suite Pollution**
+  Empty tests add noise to the test codebase, making it harder to understand what is actually being validated and reducing overall readability.
 
-  * Chamadas a `test()` ou `testWidgets()` (no Flutter) cujos blocos de código não contêm nenhuma expectativa (`expect`) ou qualquer lógica de execução relevante para a validação.
-  * Funções de teste que parecem ser apenas esqueléticas ou *placeholders*, com apenas comentários ou sem nenhuma instrução.
+* **Silent Technical Debt**
+  Empty tests left as placeholders often become forgotten technical debt, leaving critical functionality without proper validation.
 
-### Detecção Automática
+---
 
-Ferramentas de análise estática (`dart analyze` com configurações de lint) podem ser configuradas para sinalizar métodos de teste que não contêm asserções ou chamadas a `expect`. Além disso, ferramentas de **cobertura de testes** podem mostrar que o código que deveria ser exercitado por esses testes vazios não está sendo coberto.
+## Identification Criteria
 
------
+To identify an **Empty Test**, look for:
 
-## ✅ Exemplo de Código
+* Calls to `test()`, `testWidgets()`, or `group()` whose bodies contain no assertions (`expect`) and no meaningful execution logic.
+* Test functions that contain only comments or are completely empty.
+* Test cases that appear to be skeletal or unfinished placeholders.
 
-### Exemplo com Empty Test
+### Automatic Detection
+
+Static analysis tools (such as `dart analyze` combined with custom lint rules) can be configured to flag test functions that do not contain assertions. Additionally, **test coverage tools** can reveal that code expected to be exercised by these tests is not actually being covered.
+
+---
+
+## Code Example
+
+### Example with Empty Test
 
 ```dart
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('Teste de Registro de Usuário (Vazio)', () {
-    // Nenhuma asserção ou verificação realizada.
-    // Este teste "passará" sem validar nada.
+  test('User registration test (empty)', () {
+    // No assertions or validations performed.
+    // This test will pass without testing anything.
   });
-}
-
-class User {
-  final String name;
-  final String email;
-  bool isRegistered = false;
-
-  User({
-    required this.name,
-    required this.email
-  });
-
-  void register() {
-    isRegistered = true;
-  }
 }
 ```
 
-### Exemplo sem Empty Test
+---
+
+### Example without Empty Test
 
 ```dart
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('Deve registrar um usuário com sucesso', () {
-    // Arrange: Prepara o cenário
-    var user = User(name: "John Doe", email: "john.doe@example.com");
+  test('Should register a user successfully', () {
+    // Arrange
+    var user = User(name: 'John Doe', email: 'john.doe@example.com');
 
-    // Act: Executa a ação a ser testada
+    // Act
     user.register();
 
-    // Assert: Verifica o comportamento esperado
-    expect(user.isRegistered, isTrue, reason: "O usuário deve estar registrado após a chamada a register()");
+    // Assert
+    expect(
+      user.isRegistered,
+      isTrue,
+      reason: 'The user should be registered after calling register()',
+    );
   });
 }
 
-class User {
-  final String name;
-  final String email;
-  bool isRegistered = false;
-
-  User({
-    required this.name,
-    required this.email
-  });
-
-  void register() {
-    isRegistered = true;
-  }
-}
 ```
 
------
+---
 
-## 🚀 Correções Sugeridas
+## Suggested Refactorings
 
-Para resolver o **Empty Test**:
+To address the **Empty Test** smell:
 
-  * **Implemente o Teste**: Se o teste vazio é um *placeholder*, complete-o adicionando a lógica de *arrange*, *act*, e *assert* necessária para validar o comportamento do código.
-  * **Remova Testes Vazios e Obsoletos**: Se um teste vazio não for mais relevante ou necessário, remova-o completamente para reduzir a poluição e o ruído na sua suíte de testes.
-  * **Revise Periodicamente os Testes**: Durante a manutenção ou refatoração do código de produção e de teste, revise os testes para garantir que todos estão fazendo algo útil e que não há testes vazios esquecidos.
+* **Implement the Test**
+  If the empty test is a placeholder, complete it by adding proper *arrange*, *act*, and *assert* steps that validate real behavior.
 
------
+* **Remove Obsolete Empty Tests**
+  If the test is no longer relevant, remove it entirely to reduce noise in the test suite.
 
-## 🌟 Exceções e Casos Especiais
+* **Periodically Review Tests**
+  During refactoring or maintenance, review the test suite to ensure that every test contributes meaningful validation and that no empty tests remain.
 
-Em raras situações, um `Empty Test` pode ser usado como um marcador **muito temporário** durante o desenvolvimento ágil ou TDD (Test-Driven Development) para indicar que um teste será implementado imediatamente após a escrita do código de produção. Contudo, essa prática deve ser **extremamente breve** e o teste deve ser preenchido ou removido rapidamente. Em projetos maduros, testes vazios devem ser considerados um **anti-padrão** e evitados.
+---
 
------
+## Exceptions and Special Cases
 
-## 🛠 Ferramentas de Detecção
+In rare situations, an **Empty Test** may be used as a **very short-lived placeholder**, particularly during Test-Driven Development (TDD), to mark an upcoming test that will be implemented immediately after writing production code.
 
-  * **Analisadores Estáticos de Código (Linters)**: Ferramentas como `dart analyze` (especialmente com as regras de lint do `package:lints` ou `flutter_lints`) podem ser configuradas para alertar sobre funções de teste que não contêm chamadas a `expect` ou `fail`.
-  * **Ferramentas de Cobertura de Testes**: Embora não detectem diretamente o teste vazio, uma análise de cobertura de código pode indiretamente apontar para classes ou métodos que não estão sendo exercitados por testes significativos, o que pode levar à descoberta de testes vazios.
-  * **Revisão de Código (Code Review)**: A revisão manual do código por outros desenvolvedores é uma das formas mais eficazes de identificar testes vazios e garantir que a suíte de testes seja de alta qualidade.
+However, this practice should be extremely brief. In mature or long-lived projects, empty tests should be treated as an **anti-pattern** and avoided entirely.
 
------
+---
 
-## 📚 Referências e Estudos Relacionados
+## Note
 
-  * Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
-  * Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
-  * Van Deursen, A., et al. (2001). "Refactoring Test Code."
+The **Empty Test** is a subtle but harmful test smell. Although it may appear harmless, it undermines confidence in the test suite and distorts quality metrics. High-quality test suites prioritize **explicit assertions and meaningful behavior validation**, ensuring that every passing test provides real value.
 
------
 
-## 📝 Nota
+---
 
-O **Empty Test** é uma falha sutil, mas perigosa. Embora possa parecer inofensivo, ele erode a confiança na suíte de testes e na cobertura de código. Priorizar testes concisos, focados e com expectativas claras é fundamental para manter a qualidade e a confiabilidade do seu software Dart.
+## References
 
------
+* Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
+* Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
+* Van Deursen, A., et al. (2001). *Refactoring Test Code*
+

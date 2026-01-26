@@ -1,57 +1,33 @@
 # Duplicate Assert
 
-## 🔍 Descrição do Problema
+## Description
 
-**Duplicate Assert** ocorre quando um teste em Dart contém múltiplas **expectativas** (`expect`) que validam a mesma condição ou o mesmo comportamento. Isso pode indicar um código de teste redundante, onde a verificação de uma única condição é repetida, aumentando a complexidade do teste sem trazer benefícios adicionais.
+**Duplicate Assert** occurs when a Dart test contains multiple assertions (`expect`) that validate the same condition or behavior. This usually indicates redundant test code, where a single condition is verified repeatedly, increasing test complexity without providing additional value.
 
-O **Duplicate Assert** compromete a clareza do teste e pode dificultar a manutenção, uma vez que a alteração de uma das expectativas pode não ser refletida na outra, resultando em inconsistências e uma falsa sensação de segurança.
+**Duplicate Assert** compromises test clarity and can hinder maintenance, since a change in one assertion may not be reflected in its duplicate, leading to inconsistencies and a false sense of test coverage.
 
------
+---
 
-## ⚠️ Sintomas e Impacto
+## Symptoms and Impact
 
-  * **Redundância no Código**: O teste fica mais longo e difícil de entender, sem adicionar valor real, pois valida as mesmas condições várias vezes.
-  * **Manutenção Dificultada**: Modificações em uma das condições podem ser negligenciadas ou esquecidas em outras expectativas duplicadas, levando a testes que passam, mas não detectam falhas reais, ou a testes que falham por inconsistência interna.
-  * **Poluição no Código**: Expectativas duplicadas adicionam ruído ao código de teste, dificultando a leitura e a compreensão do que está sendo realmente validado.
+* **Code Redundancy**: Tests become longer and harder to understand while validating the same condition multiple times.
+* **Maintenance Difficulty**: Changes to the expected behavior may be updated in only one assertion, causing inconsistent test logic.
+* **Test Noise**: Duplicate assertions add unnecessary noise, making it harder to identify what behavior is actually under test.
 
------
+---
 
-## 🔑 Critérios de Identificação
+## Identification Criteria
 
-Para identificar o **Duplicate Assert**, procure por:
+To identify **Duplicate Assert**, look for:
 
-  * Testes que contenham múltiplas expectativas (`expect`) que verificam a mesma variável, propriedade, ou condição de forma idêntica e redundante.
-  * Condições ou comportamentos que são testados mais de uma vez dentro do mesmo método de teste, sem um propósito claro para a repetição (como verificar a imutabilidade após uma operação, que seria um cenário válido).
+* Tests containing multiple assertions (`expect`) that verify the same variable, property, or condition in an identical and redundant way.
+* Conditions or behaviors tested more than once within the same test method without a clear justification, such as an intermediate state change.
 
------
+---
 
-## ✅ Exemplo de Código
+## Example Code
 
-### Exemplo com Duplicate Assert
-
-```dart
-import 'package:flutter_test/flutter_test.dart';
-
-class User {
-  final String name;
-
-  User({
-    required this.name
-  });
-}
-
-void main() {
-  test('Teste de Nome de Usuário com Expectativas Duplicadas', () {
-    var user = User(name: "John");
-
-    expect(user.name, equals("John")); // Primeira verificação
-    expect(user.name, equals("John")); // Expectativa redundante, verifica a mesma coisa
-    // Uma falha na primeira já invalidaria o teste, a segunda não agrega valor
-  });
-}
-```
-
-### Exemplo sem Duplicate Assert
+### Example with Duplicate Assert
 
 ```dart
 import 'package:flutter_test/flutter_test.dart';
@@ -59,59 +35,83 @@ import 'package:flutter_test/flutter_test.dart';
 class User {
   final String name;
 
-  User({
-    required this.name
-  });
+  User({required this.name});
 }
 
 void main() {
-  test('Teste de Nome de Usuário Único', () {
+  test('User name test with duplicate assertions', () {
     var user = User(name: "John");
 
-    expect(user.name, equals("John"), reason: "O nome do usuário deve ser 'John'");
-    // Uma única expectativa clara e com uma boa razão é suficiente.
+    expect(user.name, equals("John")); // First assertion
+    expect(user.name, equals("John")); // Redundant assertion
+    // A failure in the first assertion already invalidates the test
   });
 }
 ```
 
------
+**Problem:**
+Both assertions validate exactly the same condition. The second assertion provides no additional verification and increases redundancy.
 
-## 🚀 Correções Sugeridas
+---
 
-Para resolver o **Duplicate Assert**:
+### Example without Duplicate Assert
 
-  * **Remova Expectativas Redundantes**: Verifique se o teste já valida corretamente a condição e remova qualquer `expect` duplicado. Uma única expectativa para uma única condição ou comportamento é geralmente suficiente.
-  * **Centralize a Verificação**: Ao invés de repetir a mesma verificação, realize-a uma única vez de forma clara e compreensível. Se houver diferentes aspectos de um mesmo dado a serem verificados (ex: `list.length` e `list[0]`), eles devem ser expectativas distintas, não duplicatas.
-  * **Refatore o Código de Teste**: Se você se sentir tentado a duplicar expectativas porque a lógica de validação é complexa ou o estado é modificado, considere refatorar o código sob teste ou o próprio teste. Isso pode envolver dividir o teste em múltiplos testes menores (se houver diferentes comportamentos a serem testados), ou usar métodos auxiliares para preparar o estado ou encapsular lógicas de verificação mais complexas.
+```dart
+import 'package:flutter_test/flutter_test.dart';
 
------
+class User {
+  final String name;
 
-## 🌟 Exceções e Casos Especiais
+  User({required this.name});
+}
 
-Em alguns casos muito específicos, a validação de uma condição similar em diferentes pontos do teste **pode ser justificada se houver uma mudança de estado intermediária**. Por exemplo:
+void main() {
+  test('User name test', () {
+    var user = User(name: "John");
 
-  * Validar um estado antes e depois de uma operação para garantir que o estado esperado foi alterado e o estado inicial não foi afetado.
-  * Em testes de fluxo (integration tests), onde o mesmo dado pode ser verificado em diferentes etapas para garantir sua persistência ou transformação correta.
+    expect(
+      user.name,
+      equals("John"),
+      reason: "The user's name should be 'John'",
+    );
+  });
+}
+```
 
-No entanto, a duplicação pura, onde a mesma expectativa é feita no mesmo ponto sem uma alteração intermediária no objeto de teste ou no seu estado, sem uma razão lógica clara, deve ser evitada.
+**Solution:**
+A single, clear assertion is sufficient to validate the expected behavior.
 
------
+---
 
-## 🛠 Ferramentas de Detecção
+## Recommended Fixes
 
-  * **Analisadores Estáticos de Código (Linters)**: Ferramentas como `dart analyze` podem ser configuradas para identificar padrões de código que sugerem expectativas duplicadas.
-  * **Plugins de Test Smells**: Ferramentas de análise de código estática como **SonarQube** (com suas regras para Dart) podem identificar repetições de expectativas e sugerir melhorias.
+To mitigate **Duplicate Assert**:
 
------
+* **Remove Redundant Assertions**: Ensure each assertion validates a unique condition or behavior.
+* **Centralize Verification**: Perform each logical check only once, in a clear and explicit manner.
+* **Refactor Test Structure**: If repetition is tempting due to complex logic or state changes, consider splitting the test into smaller, focused tests or refactoring the setup logic.
 
-## 📚 Referências e Estudos Relacionados
+---
 
-  * Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
-  * Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
-  * Van Deursen, A., et al. (2001). "Refactoring Test Code."
+## Exceptions and Special Cases
 
------
+In specific scenarios, validating similar conditions at different points in a test may be justified if there is an intermediate state change. Examples include:
 
-## 📝 Nota
+* Verifying state before and after an operation to ensure correct state transition.
+* Integration tests where the same data is validated across different stages of a workflow.
 
-O **Duplicate Assert** pode ser encontrado frequentemente em testes mal estruturados ou escritos apressadamente. É um problema que pode ser facilmente resolvido, garantindo que os testes sejam mais claros, concisos e eficientes. Este guia ajuda a refatorar testes redundantes, melhorando a qualidade do código de testes em Dart.
+Pure duplication—where the same assertion is executed at the same logical point without any state change—should be avoided.
+
+---
+
+## Note
+
+**Duplicate Assert** is commonly found in hastily written or poorly structured tests. Removing redundant assertions improves test readability, maintainability, and confidence in test results.
+
+---
+
+## References
+
+* Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*.
+* Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*.
+* Van Deursen, A., et al. (2001). "Refactoring Test Code."

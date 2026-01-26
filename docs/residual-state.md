@@ -1,46 +1,48 @@
 # Residual State Test
 
-## ✅ Descrição do Problema
+## Description
 
-O **Residual State Test** ocorre quando os testes deixam estados residuais em componentes ou serviços testados, como widgets ou instâncias de gerenciamento de estado. Esse problema pode levar a falhas intermitentes, testes não confiáveis ou dependências inesperadas entre os casos de teste.
-
----
-
-## ✅ Sintomas e Impacto
-
-- **Sintomas**:
-  - Testes que falham ou têm comportamento inconsistente dependendo da ordem de execução.
-  - Mensagens de erro indicando que widgets ou serviços ainda estão ativos.
-  - Acúmulo de listeners ou streams que não foram fechados corretamente.
-
-- **Impacto**:
-  - Aumenta a dificuldade de depuração.
-  - Reduz a confiabilidade e a independência dos testes.
-  - Pode causar vazamentos de memória devido a recursos não liberados.
+**Residual State Test** occurs when tests leave residual states in the components or services under test, such as widgets, controllers, or state management instances. This problem can lead to intermittent failures, unreliable tests, or unexpected dependencies between test cases.
 
 ---
 
-## ✅ Critérios de Identificação
+## Symptoms and Impact
 
-- Widgets ou serviços que possuem ciclos de vida não encerrados (ex.: `Stream`, `Future`, ou `Controller`).
-- Não utilização de métodos como `dispose()` em testes de widgets.
-- Depuração mostra acúmulo de listeners ou objetos não coletados.
+* **Symptoms**:
+
+  * Tests fail or behave inconsistently depending on execution order.
+  * Error messages indicate that widgets or services remain active.
+  * Accumulation of listeners or streams that are not properly closed.
+
+* **Impact**:
+
+  * Increases debugging complexity.
+  * Reduces test reliability and independence.
+  * May cause memory leaks due to unreleased resources.
 
 ---
 
-## ✅ Exemplo de Código
+## Identification Criteria
 
-### Exemplo com o Residual State Test
+* Widgets or services with unclosed lifecycle objects (e.g., `Stream`, `Future`, or `Controller`).
+* Missing calls to `dispose()` in widget tests.
+* Debugging shows accumulation of listeners or uncollected objects.
 
-Arquivo: `residual_state_test_with_smell.dart`
+---
+
+## Example Code
+
+### Example with Residual State Test
+
+File: `residual_state_test_with_smell.dart`
 
 ```dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('Test com residual state', (WidgetTester tester) async {
-    // Configuração inicial do widget com controlador
+  testWidgets('Test with residual state', (WidgetTester tester) async {
+    // Initial widget setup with a controller
     final controller = TextEditingController();
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
@@ -48,32 +50,34 @@ void main() {
       ),
     ));
 
-    // Simula entrada de texto
+    // Simulate text input
     await tester.enterText(find.byType(TextField), 'Flutter');
     expect(controller.text, 'Flutter');
 
-    // Teste termina sem encerrar o controlador
+    // Test ends without disposing the controller
   });
 
-  testWidgets('Outro teste que falha devido ao estado residual', (WidgetTester tester) async {
-    // Reutilização do controlador do teste anterior pode levar a falha
+  testWidgets('Another test that may fail due to residual state', (WidgetTester tester) async {
+    // Reusing a controller from previous test may lead to failure
     final controller = TextEditingController();
-    expect(controller.text.isEmpty, true); // Pode falhar por conta do estado residual
+    expect(controller.text.isEmpty, true); // May fail due to residual state
   });
 }
 ```
 
-### Exemplo sem o Residual State Test
+---
 
-Arquivo: `residual_state_test_without_smell.dart`
+### Example without Residual State Test
+
+File: `residual_state_test_without_smell.dart`
 
 ```dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('Test sem residual state', (WidgetTester tester) async {
-    // Configuração inicial do widget com controlador
+  testWidgets('Test without residual state', (WidgetTester tester) async {
+    // Initial widget setup with a controller
     final controller = TextEditingController();
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
@@ -81,16 +85,16 @@ void main() {
       ),
     ));
 
-    // Simula entrada de texto
+    // Simulate text input
     await tester.enterText(find.byType(TextField), 'Flutter');
     expect(controller.text, 'Flutter');
 
-    // Encerra o controlador ao final do teste
+    // Dispose the controller at the end of the test
     controller.dispose();
   });
 
-  testWidgets('Outro teste que é independente', (WidgetTester tester) async {
-    // Novo controlador criado sem dependência de estados anteriores
+  testWidgets('Another test that is independent', (WidgetTester tester) async {
+    // New controller created without dependency on previous state
     final controller = TextEditingController();
     expect(controller.text.isEmpty, true);
     controller.dispose();
@@ -100,41 +104,29 @@ void main() {
 
 ---
 
-## ✅ Correções Sugeridas
+## Recommended Fixes
 
-- Sempre utilize métodos como `dispose()` para encerrar widgets ou serviços, como `TextEditingController` e `StreamController`.
-- Configure o ambiente de teste adequadamente antes e depois de cada teste usando o `setUp` e o `tearDown`.
-- Evite reutilizar instâncias compartilhadas entre testes, criando instâncias novas para cada caso.
-
----
-
-## ✅ Exceções e Casos Especiais
-
-- Em alguns casos, frameworks de teste gerenciam automaticamente os estados de widgets e recursos. No entanto, é uma boa prática explicitamente encerrar instâncias críticas.
-- Ao testar dependências externas (como bancos de dados simulados), certifique-se de reiniciá-las entre os testes.
+* Always use methods like `dispose()` to close widgets or services, such as `TextEditingController` or `StreamController`.
+* Properly configure the test environment before and after each test using `setUp` and `tearDown`.
+* Avoid reusing shared instances between tests; create new instances for each test case.
 
 ---
 
-## ✅ Ferramentas de Detecção
+## Exceptions and Special Cases
 
-- **Flutter Test Debugger**: pode ajudar a identificar acumuladores de estado.
-- **Dart DevTools**: detecta vazamentos de memória ou instâncias não descartadas.
-- Logs customizados para verificar listeners ou streams não encerrados.
-
----
-
-## ✅ Referências e Estudos Relacionados
-
-- [Documentação oficial do Flutter sobre Ciclo de Vida](https://docs.flutter.dev/)
-- Artigo: *"Effective Widget Testing in Flutter"* - [Medium](https://medium.com/)
-- Livro: *"Test Smells in Dart and Flutter"* (edição acadêmica)
+* In some cases, testing frameworks automatically manage widget and resource states. However, it is good practice to explicitly close critical instances.
+* When testing external dependencies (e.g., mock databases), ensure they are reset between tests.
 
 ---
 
-## ✅ Nota
+## References
 
-Esse problema é particularmente importante para aplicações Flutter que dependem de alto desempenho e gerenciamento eficiente de recursos. Uma abordagem disciplinada ajuda a garantir testes mais confiáveis e independentes.
+* [Flutter Official Documentation on Lifecycle](https://docs.flutter.dev/)
+* Article: *"Effective Widget Testing in Flutter"* – [Medium](https://medium.com/)
+* Book: *"Test Smells in Dart and Flutter"* (academic edition)
 
 ---
 
-Caso precise de ajustes ou tenha dúvidas, posso ajudar!
+## Note
+
+This problem is particularly relevant for Flutter applications that rely on high performance and efficient resource management. A disciplined approach ensures more reliable and independent tests.

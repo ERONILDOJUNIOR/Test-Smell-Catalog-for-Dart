@@ -1,65 +1,49 @@
 # Sleepy Test
 
-## 🔍 Descrição do Problema
-**Sleepy Test** ocorre quando um teste inclui delays artificiais, geralmente implementados por comandos de espera (`sleep`), para aguardar condições ou eventos, como carregamentos de dados ou respostas assíncronas. Esse tipo de prática é problemático, pois pode deixar o teste mais lento e criar incertezas na execução, especialmente em ambientes onde a velocidade de execução pode variar.
+## Description
+
+**Sleepy Test** occurs when a test relies on artificial delays, most commonly implemented using fixed-time waits such as `sleep` or `Future.delayed`, to allow asynchronous operations to complete. Instead of synchronizing on observable conditions or events, the test pauses execution for a predetermined amount of time and then performs assertions.
+
+This practice is fragile and inefficient. It assumes that the system under test will always complete its work within the specified delay, an assumption that often breaks under different execution environments, loads, or hardware configurations.
 
 ---
 
-## ⚠️ Sintomas e Impacto
-- **Baixo Desempenho**: Testes tornam-se mais lentos devido ao tempo de espera fixo, levando a uma execução ineficiente da suíte de testes.
-- **Intermitência**: A execução do teste pode falhar ou passar dependendo da velocidade de execução do ambiente.
-- **Manutenção Difícil**: Testes que dependem de delays tornam-se difíceis de manter e ajustar, pois é necessário atualizar o tempo de espera manualmente se o desempenho do sistema mudar.
+## Symptoms and Impact
+
+The presence of **Sleepy Test** typically leads to the following problems:
+
+* **Performance Degradation**: Fixed delays unnecessarily slow down test execution, increasing the overall runtime of the test suite.
+* **Flaky Tests**: Tests may pass or fail nondeterministically depending on timing variations, system load, or execution speed.
+* **Poor Maintainability**: When system performance changes, delay values must be manually adjusted, making tests brittle and harder to evolve.
 
 ---
 
-## 🔑 Critérios de Identificação
-Para identificar **Sleepy Test**, procure por:
-- Chamadas explícitas a `sleep` ou outros comandos de espera com tempos fixos.
-- Testes assíncronos que aguardam um período fixo em vez de esperar um evento ou condição específica.
+## Identification Criteria
+
+A test is likely to exhibit the **Sleepy Test** smell if it includes:
+
+* Explicit calls to `sleep`, `Future.delayed`, or similar time-based waiting mechanisms.
+* Asynchronous tests that wait for a fixed duration instead of synchronizing on a specific condition, event, or completion signal.
 
 ---
 
-## ✅ Exemplo de Código
+## Code Examples
 
-### Exemplo com Sleepy Test
+### Example with Sleepy Test
 
 ```dart
 import 'package:test/test.dart';
 
 void main() {
-  test('Sleepy Test - Fixed Delay', () async {
+  test('Sleepy Test with fixed delay', () async {
     final dataFetcher = DataFetcher();
     dataFetcher.fetchData();
-    
-    // Espera fixa de 5 segundos
-    await Future.delayed(const Duration(seconds: 5)); 
-    expect(dataFetcher.isDataLoaded, isTrue, reason: 'Data should be loaded after 5 seconds');
-  });
-}
 
-class DataFetcher {
-  bool isDataLoaded = false;
-  
- Future<void> fetchData() async {
-    await Future.delayed(const Duration(seconds: 5)); // Simula um delay de carregamento
-    isDataLoaded = true;
-  }
-}
-```
+    // Fixed wait time
+    await Future.delayed(const Duration(seconds: 5));
 
-### Exemplo sem Sleepy Test
-
-```dart
-import 'package:test/test.dart';
-
-void main() {
-  test('Optimized Test - Wait for Condition', () async {
-    final dataFetcher = DataFetcher();
-    await dataFetcher.fetchData();
-
-    // Espera pela condição, sem um tempo fixo
-    await waitFor(() => dataFetcher.isDataLoaded); 
-    expect(dataFetcher.isDataLoaded, isTrue, reason: 'Data should be loaded once fetch completes');
+    expect(dataFetcher.isDataLoaded, isTrue,
+        reason: 'Data should be loaded after the delay');
   });
 }
 
@@ -67,48 +51,77 @@ class DataFetcher {
   bool isDataLoaded = false;
 
   Future<void> fetchData() async {
-    await Future.delayed(const Duration(seconds: 3)); // Simula um delay de carregamento
+    await Future.delayed(const Duration(seconds: 5));
     isDataLoaded = true;
-  }
-}
-
-Future<void> waitFor(Function condition) async {
-  while (!condition()) {
-    await Future.delayed(const Duration(milliseconds: 100));
   }
 }
 ```
 
----
-
-## 🚀 Correções Sugeridas
-Para resolver o **Sleepy Test**:
-
-- **Espere por Condições**: Em vez de usar um delay fixo, aguarde até que uma condição seja verdadeira.
-- **Use Métodos de Espera Específicos**: Muitas bibliotecas de teste oferecem métodos para esperar eventos ou condições de forma eficiente, como `await expectAsync()` no Dart.
-- **Ajuste o Intervalo de Verificação**: Se possível, use uma espera ativa com verificações regulares e intervalos curtos para reduzir o tempo total de espera.
+In this example, the test assumes that five seconds is sufficient for the asynchronous operation to complete. If execution is slower or faster than expected, the test becomes unreliable or unnecessarily slow.
 
 ---
 
-## 🌟 Exceções e Casos Especiais
-Em situações onde o tempo de resposta do sistema é sempre o mesmo (como sistemas em tempo real), pode ser razoável usar um delay fixo. Porém, é recomendável limitar o uso de espera fixa sempre que possível para garantir a flexibilidade dos testes.
+### Example without Sleepy Test
+
+```dart
+import 'package:test/test.dart';
+
+void main() {
+  test('Synchronized async test', () async {
+    final dataFetcher = DataFetcher();
+
+    await dataFetcher.fetchData();
+
+    expect(dataFetcher.isDataLoaded, isTrue,
+        reason: 'Data should be loaded once fetchData completes');
+  });
+}
+
+class DataFetcher {
+  bool isDataLoaded = false;
+
+  Future<void> fetchData() async {
+    await Future.delayed(const Duration(seconds: 3));
+    isDataLoaded = true;
+  }
+}
+```
+
+Here, the test synchronizes directly on the completion of the asynchronous operation, eliminating the need for arbitrary waiting periods.
 
 ---
 
-## 🛠 Ferramentas de Detecção
-- **Linters**: Ferramentas como `dart analyze` podem ser configuradas para detectar o uso de comandos `sleep` em métodos de teste.
-- **Analisadores de Teste**: Ferramentas como SonarQube podem ser configuradas para identificar padrões de espera fixa.
+## Recommended Refactorings
+
+To eliminate the **Sleepy Test** smell, consider the following strategies:
+
+* **Synchronize on Completion**: Await the completion of `Future`s or asynchronous methods instead of waiting for a fixed time.
+* **Wait for Conditions or Events**: Prefer condition-based synchronization (e.g., polling with a timeout) over fixed delays when direct awaiting is not possible.
+* **Use Testing Utilities**: Leverage testing frameworks and utilities designed for asynchronous coordination, such as stream listeners, callbacks, or scheduler controls.
 
 ---
 
-## 📝 Nota
-A remoção de **Sleepy Test** é especialmente importante para melhorar a eficiência e consistência da suíte de testes, reduzindo o tempo de execução e melhorando a confiabilidade dos resultados.
+## Exceptions and Special Cases
+
+In rare cases, such as testing interactions with hard real-time systems or external components with strictly deterministic timing, a fixed delay may be unavoidable. Even in such scenarios, delays should be minimized and clearly documented to justify their necessity.
 
 ---
 
-## 📚 Referências e Estudos Relacionados
-- Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
-- Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
-- Van Deursen, A., et al. (2001). "Refactoring Test Code."
+## Notes on Asynchronous Testing in Dart
+
+**Sleepy Test** most commonly appears in tests involving asynchronous behavior. Dart provides several mechanisms to write deterministic asynchronous tests without relying on fixed delays.
+
+In particular:
+
+* Prefer `await` on asynchronous APIs whenever possible.
+* Use `expectLater` to assert future or stream-based outcomes in a structured and time-aware manner.
+
+For example, `expectLater` allows assertions to be bound directly to asynchronous results, reducing the temptation to introduce artificial delays and improving both reliability and clarity.
 
 ---
+
+## References
+
+* Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*.
+* Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*.
+* Van Deursen, A., et al. (2001). *Refactoring Test Code*.

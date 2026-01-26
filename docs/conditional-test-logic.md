@@ -1,30 +1,37 @@
 # Conditional Test Logic
 
-## 🔍 Descrição do Problema
+## Description
 
-**Conditional Test Logic** ocorre quando métodos de teste em Dart contêm estruturas condicionais (como `if`, `switch`, `for`, `while`) que podem alterar o comportamento do teste. Esse uso de lógica condicional reduz a previsibilidade do teste, dificultando a identificação de falhas e podendo ocultar defeitos no código de produção, já que alguns caminhos do teste podem não ser executados.
+**Conditional Test Logic** occurs when test methods contain control-flow constructs, such as `if`, `switch`, `for`, `while`, or `forEach`, that influence how the test is executed. The presence of such logic introduces multiple execution paths into a single test, reducing determinism and making failures harder to diagnose.
 
------
+In a well-designed test suite, each test case should represent a single, explicit scenario and follow a linear execution path. Embedding decision-making or iteration logic within tests violates this principle and weakens the role of tests as precise and executable specifications.
 
-## ⚠️ Sintomas e Impacto
+---
 
-  * **Inconsistência nos Resultados**: Como o teste depende de condições, pode produzir resultados diferentes em execuções distintas.
-  * **Dificuldade de Manutenção**: A lógica condicional dificulta a interpretação do teste e aumenta a complexidade, tornando-o mais difícil de manter.
-  * **Cobertura de Testes Comprometida**: Alguns trechos de código de produção podem não ser testados se as condições não forem atendidas.
+## Symptoms and Impact
 
------
+The presence of **Conditional Test Logic** may lead to the following issues:
 
-## 🔑 Critérios de Identificação
+- **Reduced Predictability**: Test behavior may vary depending on runtime conditions, making results harder to reason about.
+- **Lower Diagnostic Quality**: When a test fails, it may be unclear which execution path was taken or which condition triggered the failure.
+- **Increased Maintenance Effort**: Conditional and iterative constructs increase cognitive complexity, making tests harder to read, review, and evolve.
+- **Hidden Coverage Gaps**: Certain scenarios in the production code may not be exercised if conditional paths in the test are not executed.
 
-Para identificar o **Conditional Test Logic**, verifique:
+---
 
-  * Métodos de teste que contêm estruturas de controle de fluxo, como `if`, `switch`, `for`, `while`, etc.
+## Identification Criteria
 
------
+A test is likely to exhibit **Conditional Test Logic** if it contains one or more of the following within the test body:
 
-## ✅ Exemplo de Código
+- Conditional statements such as `if`, `else`, or `switch`.
+- Iterative constructs such as `for`, `while`, or `forEach`.
+- Assertions whose execution depends on runtime-evaluated conditions rather than a fixed and explicit test scenario.
 
-### Exemplo com Conditional Test Logic
+---
+
+## Code Examples
+
+### Example with Conditional Test Logic
 
 ```dart
 import 'package:flutter_test/flutter_test.dart';
@@ -44,41 +51,51 @@ class ShoppingCart {
 }
 
 void main() {
-  test('Calcula o desconto com lógica condicional', () {
+  test('Calculates discount using conditional logic in the test', () {
     final cart = ShoppingCart(50);
     cart.applyDiscount();
-    
-    // Lógica condicional dentro do teste, tornando-o menos previsível
+
     if (cart.totalAmount > 100) {
-      expect(cart.discount, 0.1); // Só é executado se a condição for verdadeira
+      expect(cart.discount, 0.1);
     } else {
-      expect(cart.discount, 0); // Pode passar sem verificar todas as possibilidades
+      expect(cart.discount, 0);
     }
   });
 }
 ```
 
-### Exemplo sem Conditional Test Logic
+In this example, the test outcome depends on a conditional branch inside the test itself. As a result, the intent of the test is ambiguous and the behavior under failure is less predictable.
+
+
+### Example without Conditional Test Logic
 
 ```dart
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('Calcula desconto para valor acima de 100', () {
-    final cart = ShoppingCart(150); // Cenário específico
+  test('Applies a 10% discount for totals above 100', () {
+    final cart = ShoppingCart(150);
     cart.applyDiscount();
-    expect(cart.discount, 0.1, reason: "Desconto deve ser 10% para valores acima de 100");
+
+    expect(
+      cart.discount,
+      0.1,
+      reason: 'A 10% discount is expected for totals above 100',
+    );
   });
 
-  test('Calcula desconto para valor igual ou abaixo de 100', () {
-    final cart = ShoppingCart(50); // Outro cenário específico
+  test('Applies no discount for totals equal to or below 100', () {
+    final cart = ShoppingCart(50);
     cart.applyDiscount();
-    expect(cart.discount, 0, reason: "Desconto deve ser 0 para valores iguais ou abaixo de 100");
+
+    expect(
+      cart.discount,
+      0,
+      reason: 'No discount is expected for totals equal to or below 100',
+    );
   });
 }
 
-// Em um projeto Dart real, a classe ShoppingCart estaria em seu próprio arquivo
-// e seria importada onde necessário.
 class ShoppingCart {
   final double totalAmount;
   double discount = 0;
@@ -94,39 +111,75 @@ class ShoppingCart {
 }
 ```
 
------
+Each test represents a single, explicit scenario, eliminating conditional logic from the test body.
 
-## 🚀 Correções Sugeridas
+---
 
-Para resolver o **Conditional Test Logic**:
+## Iterative Constructs and `forEach` as a Smell
 
-  * **Remova Condicionais dos Testes**: Divida os cenários condicionais em testes separados, cada um cobrindo um caso específico. Isso garante que cada `test` foca em uma única condição ou caminho de execução.
-  * **Mantenha Testes Simples e Lineares**: Testes devem ser diretos, garantindo que cada execução passe pelo mesmo fluxo e validações. O objetivo é que o teste seja previsível e fácil de entender.
-  * **Use Mocking para Contextos Específicos**: Para dependências externas ou contextos complexos, configure o teste com valores específicos usando `mockito` ou outras ferramentas de mock, evitando depender de condições internas que variem.
+Iterative constructs such as `for`, `while`, and especially `forEach` are commonly found in test code. Their presence within tests is a strong indicator of **Conditional Test Logic**.
 
------
+When assertions are executed inside loops, the test implicitly validates multiple scenarios within a single test case. This practice reduces clarity and significantly weakens failure diagnostics.
 
-## 🌟 Exceções e Casos Especiais
+### Example: Assertions Inside a `forEach`
 
-Para testes de lógica complexa onde múltiplas condições são inevitáveis no código de produção, **não no teste**, considere utilizar técnicas de **parametrização de testes** (se a estrutura de teste suportar, como alguns frameworks em outras linguagens, embora menos comum diretamente em `package:test` ou `flutter_test`) e **mocks** para controlar o fluxo e reduzir a complexidade dos testes. O foco deve ser sempre isolar as condições no código testado, não no teste em si.
+```dart
+// Source: https://stackoverflow.com/q
+// Posted by jsa
+// Retrieved 2026-01-25
+// License: CC BY-SA 4.0
 
------
+import 'package:test/test.dart';
 
-## 🛠 Ferramentas de Detecção
+void main() {
+  test('formatDay should format dates correctly', () async {
+    var inputsToExpected = {
+      DateTime(2018, 11, 01): 'Thu 1',
+      // ...
+      DateTime(2018, 11, 07): 'Wed 7',
+      DateTime(2018, 11, 30): 'Fri 30',
+    };
 
-  * **Linters e Analisadores de Código**: Ferramentas como `dart analyze` podem ser configuradas para detectar estruturas condicionais (`if`, `for`, `while`, `switch`) dentro dos métodos de teste.
-  * **Plugins de Test Smells**: Ferramentas de análise de código estática como **SonarQube** podem ser adaptadas ou configuradas com regras personalizadas para identificar o uso de estruturas de controle em testes Dart.
+    var inputsToResults = inputsToExpected.map(
+      (input, expected) => MapEntry(input, formatDay(input)),
+    );
 
------
+    inputsToExpected.forEach((input, expected) {
+      expect(inputsToResults[input], equals(expected));
+    });
+  });
+}
+```
 
-## 📝 Nota
+If a failure occurs in this test, the output does not clearly indicate **which input value** or **which iteration** caused the failure. As a result, developers must manually inspect the test data to identify the root cause.
 
-**Conditional Test Logic** é uma prática comum, mas que reduz a confiabilidade dos testes, pois qualquer alteração na condição interna pode alterar a cobertura ou o comportamento do teste, tornando-o menos eficaz. Evitar essa prática leva a testes mais robustos, fáceis de depurar e manter.
+---
 
------
+## Recommended Refactorings
 
-## 📚 Referências e Estudos Relacionados
+To mitigate **Conditional Test Logic**, the following practices are recommended:
 
-  * Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
-  * Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
-  * Van Deursen, A., et al. (2001). "Refactoring Test Code."
+* **Remove Conditional and Iterative Logic from Tests**: Replace them with multiple, focused test cases, each covering a single scenario.
+* **Avoid Assertions Inside Loops**: Prefer explicit tests over loops that perform multiple assertions.
+* **Keep Tests Linear and Deterministic**: Each test should follow a single execution path and validate one well-defined behavior.
+* **Control Variability via Test Setup**: Use fixed inputs, fixtures, or mocks to define scenarios explicitly, rather than relying on runtime conditions.
+
+---
+
+## Exceptions and Special Cases
+
+In rare cases where the testing framework provides explicit and well-diagnosed test parameterization mechanisms, iterative constructs may be acceptable. However, such mechanisms are not natively emphasized in `package:test` or `flutter_test`, and their use should be carefully justified.
+
+---
+
+## Notes
+
+**Conditional Test Logic** weakens tests as executable specifications. By embedding decision-making or iteration logic within tests, developers obscure intent, reduce diagnosability, and increase maintenance effort. Eliminating this smell leads to clearer, more robust, and more maintainable test suites.
+
+---
+
+## References
+
+* Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*.
+* Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*.
+* Van Deursen, A., et al. (2001). *Refactoring Test Code*.

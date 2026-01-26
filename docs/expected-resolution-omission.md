@@ -1,132 +1,140 @@
 # Expected Resolution Omission (ERO)
 
-## Descrição do Problema
-O **Expected Resolution Omission (ERO)** é um test smell que ocorre quando há falhas no uso correto de `await`, `expect`, ou `expectLater` em testes assíncronos no Dart. Esse problema pode levar a:
+## Problem Description
 
-- **Testes que passam erroneamente**, mesmo com comportamentos incorretos.
-- **Falhas por problemas de sincronização**, onde o código testado não é executado no momento correto.
-- **Uso desnecessário de `await`** em contextos que não requerem essa palavra-chave, tornando o teste confuso e redundante.
+**Expected Resolution Omission (ERO)** is a test smell that occurs when there are mistakes in the proper use of `await`, `expect`, or `expectLater` in asynchronous tests in Dart. This issue can lead to:
 
-Testes que não esperam corretamente pela resolução de um `Future` ou que utilizam `await` de forma inadequada podem mascarar erros, resultando em uma validação ineficaz do comportamento assíncrono.
+* **Tests passing incorrectly**, even when behaviors are wrong.
+* **Failures due to synchronization issues**, where the tested code is not executed at the correct time.
+* **Unnecessary use of `await`** in contexts that do not require it, making the test confusing or redundant.
 
----
-
-## Sintomas e Impacto
-
-- **Testes falsos positivos**: Testes que passam mesmo quando o comportamento esperado está incorreto.
-- **Testes intermitentes**: Resultados inconsistentes devido à falta de sincronização com o código assíncrono.
-- **Erros de lógica**: Uso inadequado de `await` pode causar interpretações erradas do fluxo do teste.
-- **Código confuso**: Await ou matchers inapropriados dificultam a compreensão do comportamento esperado.
+Tests that do not properly wait for a `Future` to resolve or that misuse `await` may mask errors, resulting in ineffective validation of asynchronous behavior.
 
 ---
 
-## Critérios de Identificação
+## Symptoms and Impact
 
-1. **Expectativa sem `await` ou `expectLater`**:
-   - Quando é esperado que um `Future` retorne um valor, mas não há `await` para aguardar sua resolução ou `expectLater` para validar seu comportamento.
-
-2. **Uso de `await` em código não assíncrono**:
-   - Usar `await` para valores ou operações que não são `Future`, introduzindo redundância no teste.
-
-3. **Falta de `throwsA` ao testar exceções**:
-   - Testar um `Future` que lança uma exceção sem usar o matcher `throwsA`.
-
-4. **Uso inadequado de `completes`**:
-   - Utilizar `expect` com `await` ao invés de usar `expectLater` com o matcher `completes` para verificar se um `Future` conclui sem erros.
-
-5. **Ignorar comportamento assíncrono**:
-   - Testar diretamente o objeto `Future` sem `await` ou `expectLater`, causando resultados errados ou falsos positivos.
+* **False positives**: Tests that pass even when the expected behavior is incorrect.
+* **Flaky tests**: Inconsistent results due to improper synchronization with asynchronous code.
+* **Logic errors**: Misuse of `await` can cause misinterpretation of test flow.
+* **Confusing code**: Inappropriate awaits or matchers make the expected behavior harder to understand.
 
 ---
 
-## Exemplo de Código
+## Identification Criteria
 
-### **Exemplo Problemático**
+1. **Expectation without `await` or `expectLater`**:
+
+   * When a `Future` is expected to return a value, but there is no `await` or `expectLater` to validate its resolution.
+
+2. **Using `await` on non-asynchronous code**:
+
+   * Awaiting values or operations that are not `Future`, introducing redundancy.
+
+3. **Missing `throwsA` when testing exceptions**:
+
+   * Testing a `Future` that throws an exception without using the `throwsA` matcher.
+
+4. **Incorrect use of `completes`**:
+
+   * Using `expect` with `await` instead of `expectLater` with `completes` to check that a `Future` completes successfully.
+
+5. **Ignoring asynchronous behavior**:
+
+   * Testing a `Future` directly without `await` or `expectLater`, leading to incorrect results or false positives.
+
+---
+
+## Code Examples
+
+### Problematic Example
+
 ```dart
 void testExample() {
-  // Exemplo 1: Falta de await ou expectLater
+  // Example 1: Missing await or expectLater
   final futureResult = Future.value(42);
-  expect(futureResult, equals(42)); // Falta await ou expectLater
+  expect(futureResult, equals(42)); // Missing await or expectLater
 
-  // Exemplo 2: Await desnecessário
+  // Example 2: Unnecessary await
   final result = 42;
-  expect(await Future.value(result), equals(42)); // Await desnecessário
+  expect(await Future.value(result), equals(42)); // Unnecessary await
 
-  // Exemplo 3: Falta de throwsA
-  final futureResult = Future.error(Exception('Falhou'));
-  expect(await futureResult, isA<Exception>()); // Matcher incorreto
+  // Example 3: Missing throwsA
+  final futureError = Future.error(Exception('Failed'));
+  expect(await futureError, isA<Exception>()); // Incorrect matcher
 
-  // Exemplo 4: Uso inadequado de completes
-  final futureResult = Future.value(42);
-  expect(await futureResult, completes); // Matcher incorreto
+  // Example 4: Incorrect use of completes
+  final futureResult2 = Future.value(42);
+  expect(await futureResult2, completes); // Incorrect matcher
 
-  // Exemplo 5: Ignorar comportamento assíncrono
-  final futureResult = Future.delayed(Duration(seconds: 1), () => 42);
-  expect(futureResult, equals(42)); // Sem await, pode passar incorretamente
+  // Example 5: Ignoring asynchronous behavior
+  final delayedResult = Future.delayed(Duration(seconds: 1), () => 42);
+  expect(delayedResult, equals(42)); // Without await, may pass incorrectly
 }
 ```
 
-### **Exemplo Corrigido**
+### Corrected Example
+
 ```dart
-void testExample() {
-  // Correção 1: Expectativa com await ou expectLater
+void testExample() async {
+  // Correction 1: Expectation with await or expectLater
   final futureResult = Future.value(42);
-  expect(await futureResult, equals(42)); // Com await
-  // ou
-  expectLater(futureResult, completes);  // Com expectLater
+  expect(await futureResult, equals(42)); // Using await
+  // or
+  expectLater(futureResult, completes);  // Using expectLater
 
-  // Correção 2: Evitar await em código não assíncrono
+  // Correction 2: Avoid await on non-async code
   final result = 42;
-  expect(result, equals(42)); // Não usa await
+  expect(result, equals(42)); // No await needed
 
-  // Correção 3: Uso de throwsA ao testar exceções
-  final futureResult = Future.error(Exception('Falhou'));
-  expect(futureResult, throwsA(isA<Exception>())); // Matcher correto
+  // Correction 3: Use throwsA for exception testing
+  final futureError = Future.error(Exception('Failed'));
+  expect(futureError, throwsA(isA<Exception>())); // Correct matcher
 
-  // Correção 4: Validação de conclusão de um Future
-  final futureResult = Future.delayed(Duration(seconds: 1), () => 42);
-  expectLater(futureResult, completes); // Matcher correto
+  // Correction 4: Validate Future completion
+  final delayedResult = Future.delayed(Duration(seconds: 1), () => 42);
+  expectLater(delayedResult, completes); // Correct matcher
 
-  // Correção 5: Sincronização com await ou expectLater
-  final futureResult = Future.delayed(Duration(seconds: 1), () => 42);
-  expect(await futureResult, equals(42)); // Garante sincronização
+  // Correction 5: Synchronize with await or expectLater
+  final delayedResult2 = Future.delayed(Duration(seconds: 1), () => 42);
+  expect(await delayedResult2, equals(42)); // Ensures proper synchronization
 }
 ```
 
 ---
 
-## Correções Sugeridas
+## Recommended Fixes
 
-1. Sempre utilize `await` ou `expectLater` para aguardar a resolução de um `Future`.
-2. Evite usar `await` em código não assíncrono; valide valores diretamente.
-3. Para testar exceções, use o matcher `throwsA` com a classe ou tipo esperado.
-4. Utilize `expectLater` com o matcher `completes` para verificar se um `Future` conclui sem erros.
-5. Certifique-se de que todo comportamento assíncrono é aguardado antes de validar resultados.
-
----
-
-## Exceções e Casos Especiais
-
-- Se o comportamento assíncrono não é essencial para o teste, ele pode ser substituído por uma implementação síncrona simulada.
-- Em casos onde não é necessário validar a resolução de um `Future`, é aceitável ignorar `await` ou `expectLater` desde que documentado claramente.
+1. Always use `await` or `expectLater` to wait for a `Future` to resolve.
+2. Avoid using `await` on non-asynchronous values; validate them directly.
+3. For testing exceptions, use the `throwsA` matcher with the expected type.
+4. Use `expectLater` with the `completes` matcher to ensure a `Future` completes without errors.
+5. Ensure all asynchronous behavior is awaited before validating results.
 
 ---
 
-## Ferramentas de Detecção
+## Exceptions and Special Cases
 
-- **Linters**: Regras personalizadas podem ser criadas para detectar uso inadequado de `await` e matchers em testes assíncronos.
-- **Analisadores Estáticos**: Ferramentas como `dart analyze` podem ser configuradas para identificar problemas comuns em testes.
-
----
-
-## Referências e Estudos Relacionados
-
-- Documentação oficial do Dart: [Testes Assíncronos](https://dart.dev/guides/testing/async)
-- Artigos sobre boas práticas de testes em Flutter e Dart.
-- Estudos acadêmicos sobre **test smells** e soluções para código assíncrono.
+* If asynchronous behavior is not critical to the test, a synchronous mock may be acceptable.
+* In scenarios where resolving a `Future` is unnecessary, it is acceptable to skip `await` or `expectLater` if clearly documented.
 
 ---
 
-## Nota
-Identificar e corrigir o **Expected Resolution Omission** é essencial para garantir testes confiáveis e robustos em Dart/Flutter, especialmente em aplica
+## Detection Tools
 
+* **Linters**: Custom rules can detect misuse of `await` or incorrect matchers in async tests.
+* **Static analyzers**: Tools like `dart analyze` can be configured to identify common mistakes in asynchronous test code.
+
+---
+
+## References
+
+* Dart Official Documentation: [Asynchronous Testing](https://dart.dev/guides/testing/async)
+* Best practices articles on Dart and Flutter testing.
+* Academic studies on test smells and asynchronous code solutions.
+
+---
+
+## Note
+
+Identifying and fixing **Expected Resolution Omission** is crucial for reliable and robust tests in Dart/Flutter, particularly for asynchronous code.

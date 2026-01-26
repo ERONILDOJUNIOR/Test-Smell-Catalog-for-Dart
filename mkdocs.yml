@@ -33,7 +33,7 @@ nav:
       - Sleepy Test: sleepy-test.md
       - Unknown Test: unknown-test.md
       - Verbose Test: verbose-test.md
-    - Dart Specific Smells:
+    - Flutter Specific Smells:
       # Aqui você vai colocar os smells que forem específicos do Dart
       - Expected Resolution Omission: expected-resolution-omission.md
       - Residual State: residual-state.md

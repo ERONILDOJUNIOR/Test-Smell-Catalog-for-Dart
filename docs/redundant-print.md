@@ -1,28 +1,31 @@
 # Redundant Print
 
-## 🔍 Descrição do Problema
-**Redundant Print** ocorre quando um método de teste contém instruções de impressão (print statements). Isso pode consumir recursos computacionais ou aumentar o tempo de execução se o desenvolvedor chamar um método de longa duração dentro da instrução de impressão. 
+## Description
 
-Embora `print` possa ser útil em alguns casos de depuração, o uso permanente e exagerado dessa prática pode dificultar a leitura e interpretação dos resultados dos testes, além de gerar saídas de console desordenadas.
+**Redundant Print** occurs when a test method contains print statements. While `print` can be useful for debugging, excessive or permanent use can consume computational resources, increase execution time (especially if long-running methods are called within the print statement), and make test results harder to read and interpret.
 
-
----
-
-## ⚠️ Sintomas e Impacto
-- **Saída de Console Poluída**: Prints tornam a saída do console confusa e difícil de ler.
-- **Má Prática**: Dependência de `print` em vez de asserts ou outras ferramentas automatizadas que fornecem feedback imediato e específico sobre o sucesso ou falha do teste.
+Persistent prints can clutter the console output and reduce the clarity of test feedback.
 
 ---
 
-## 🔑 Critérios de Identificação
-Para identificar o **Redundant Print**, procure por:
-- Testes que contêm vários `print` sem necessidade real.  
+## Symptoms and Impact
+
+* **Cluttered Console Output**: Prints make the console output confusing and difficult to read.
+* **Poor Practice**: Reliance on `print` instead of assertions or other automated tools that provide immediate and precise feedback about test success or failure.
 
 ---
 
-## ✅ Exemplo de Código
+## Identification Criteria
 
-### Exemplo com Redundant Print
+To identify **Redundant Print**, look for:
+
+* Tests containing multiple `print` statements without a valid reason.
+
+---
+
+## Example Code
+
+### Example with Redundant Print
 
 ```dart
 import 'package:test/test.dart';
@@ -37,39 +40,13 @@ void main() {
     print("Total Items: ${cart.getTotalItems()}");
   });
 }
-
-class ShoppingCart {
-  final List<Item> items = [];
-
-  void add(Item item) {
-    items.add(item);
-  }
-
-  double getTotalPrice() {
-    double total = 0;
-
-    for (var item in items) {
-      total = total + item.price;
-    }
-  
-    return total;
-  }
-
-  int getTotalItems() {
-    return items.length;
-  }
-}
-
-class Item {
-  final double price;
-
-  Item({
-    required this.price
-  });
-}
 ```
 
-### Exemplo sem Redundant Print
+**Problem:** The test relies on prints instead of assertions. This approach does not automatically verify correctness and clutters the console.
+
+---
+
+### Example without Redundant Print
 
 ```dart
 import 'package:test/test.dart';
@@ -84,68 +61,36 @@ void main() {
     expect(cart.getTotalItems(), equals(2), reason: "Total items should be 2 after adding items");
   });
 }
-
-class ShoppingCart {
-  final List<Item> items = [];
-
-  void add(Item item) {
-    items.add(item);
-  }
-
-  double getTotalPrice() {
-    double total = 0;
-
-    for (var item in items) {
-      total = total + item.price;
-    }
-  
-    return total;
-  }
-
-  int getTotalItems() {
-    return items.length;
-  }
-}
-
-class Item {
-  final double price;
-
-  Item({
-    required this.price
-  });
-}
 ```
 
----
-
-## 🚀 Correções Sugeridas
-Para resolver o **Redundant Print**:
-
-- **Substituir `print` por Asserts**: Use asserts para verificar condições diretamente, em vez de printar valores.
-- **Remover Prints Desnecessários**: Retire prints que não contribuem diretamente para a depuração ou verificação.
-- **Utilizar Logging Controlado**: Em casos em que uma saída extra é necessária para depuração, considere implementar uma solução de log que possa ser habilitada ou desabilitada conforme necessário, evitando o excesso de prints nos testes.
+**Solution:** Replace prints with assertions that directly verify the expected conditions. This ensures tests are automated, deterministic, and readable.
 
 ---
 
-## 🌟 Exceções e Casos Especiais
-Em testes de desenvolvimento inicial ou casos de depuração complexa, prints temporários podem ser aceitáveis, mas devem ser removidos antes da finalização do teste.
+## Recommended Fixes
+
+To mitigate **Redundant Print**:
+
+* **Replace `print` with Assertions**: Use assertions to check conditions directly instead of printing values.
+* **Remove Unnecessary Prints**: Eliminate prints that do not contribute to debugging or verification.
+* **Use Controlled Logging**: When extra output is necessary for debugging, implement a logging solution that can be enabled or disabled as needed, preventing excessive prints in tests.
 
 ---
 
-## 🛠 Ferramentas de Detecção
-- **Linters e Analisadores de Código**: Ferramentas como `dart analyze` e plugins de lint podem ser configurados para identificar e sinalizar o uso de `print` em arquivos de teste.
-- **Plugins de Code Smell**: Ferramentas como SonarQube podem ajudar a monitorar o uso de práticas inadequadas, como o uso excessivo de prints em testes.
+## Exceptions and Special Cases
+
+During initial development or complex debugging scenarios, temporary prints may be acceptable. However, they should be removed before finalizing the test.
 
 ---
 
-## 📝 Nota
-Eliminar o **Redundant Print** dos testes ajuda a manter a saída limpa e focada nas informações relevantes, aumentando a clareza e a confiabilidade do feedback fornecido pelos testes. 
+## Note
+
+Eliminating **Redundant Print** from tests helps maintain a clean output, focused on relevant information, and increases the clarity and reliability of the feedback provided by tests.
 
 ---
 
-## 📚 Referências e Estudos Relacionados
-- Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
-- Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
-- Van Deursen, A., et al. (2001). "Refactoring Test Code."
+## References
 
----
+* Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*.
+* Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*.
+* Van Deursen, A., et al. (2001). "Refactoring Test Code."

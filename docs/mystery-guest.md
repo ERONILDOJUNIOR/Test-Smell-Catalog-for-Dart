@@ -1,46 +1,47 @@
 # Mystery Guest
 
-## 🔍 Descrição do Problema
-O **Mystery Guest** ocorre quando um teste depende de dados ou estados externos, como configurações globais ou dados de um banco externo, que não estão diretamente visíveis no teste. Isso cria uma dependência implícita e torna o comportamento do teste mais difícil de entender, pois informações importantes para a execução e sucesso do teste estão "escondidas" fora do próprio código de teste.
+## Description
 
-Em outras palavras, o **Mystery Guest** age como um "convidado misterioso" no teste, pois os valores externos que ele usa não são claros no contexto do próprio teste, dificultando a compreensão e manutenção do código.
+**Mystery Guest** occurs when a test depends on external data or state—such as global configuration, environment settings, or external databases—that is not explicitly visible within the test itself. This creates an implicit dependency and makes the test behavior harder to understand, as critical information required for the test’s execution and success is hidden outside the test code.
 
----
-
-## ⚠️ Sintomas e Impacto
-- **Dificuldade de Depuração**: Testes falham ou se comportam de maneira inconsistente devido a dependências externas ou variáveis não explícitas.
-- **Dificuldade de Configuração**: Outros desenvolvedores podem ter dificuldade para reproduzir o ambiente exato do teste se ele depender de configurações externas.
-- **Menor Confiabilidade**: O teste se torna menos confiável devido à dependência de elementos fora do seu escopo imediato.
+In other words, **Mystery Guest** acts as a “hidden participant” in the test, since the external values it relies on are not clearly defined in the test context, complicating comprehension and maintenance.
 
 ---
 
-## 🔑 Critérios de Identificação
-Para identificar o **Mystery Guest**, procure por:
-- Testes que dependem de estados ou dados externos, como variáveis globais, arquivos de configuração, ou dados de um banco de dados.
-- Testes que requerem configurações ou dependências específicas para executar corretamente, mas não informam essas dependências no próprio código de teste.
+## Symptoms and Impact
 
-### Detecção Automática
-É desafiador para ferramentas de análise estática detectarem o **Mystery Guest**, mas você pode configurá-las para verificar referências a estados globais ou dependências externas não documentadas.
+* **Debugging Difficulty**: Tests fail or behave inconsistently due to hidden external dependencies or implicit state.
+* **Configuration Complexity**: Other developers may struggle to reproduce the exact test environment when external configuration is required but not documented.
+* **Reduced Reliability**: Tests become less reliable because their outcomes depend on factors outside their immediate scope.
 
 ---
 
-## ✅ Exemplo de Código
+## Identification Criteria
 
-### Exemplo com Mystery Guest
+To identify **Mystery Guest**, look for:
+
+* Tests that rely on external state or data, such as global variables, configuration files, or database records.
+* Tests that require specific environment setup or external dependencies to pass, without making those dependencies explicit in the test code.
+
+---
+
+## Example Code
+
+### Example with Mystery Guest
 
 ```dart
 import 'package:test/test.dart';
 
 void main() {
   test('User Profile with Mystery Guest', () {
-    final userProfile = fetchUserProfile();  // Depende de um usuário "Alice" configurado externamente
+    final userProfile = fetchUserProfile(); // Depends on externally configured data
     expect(userProfile.name, equals("Alice"));
   });
 }
 
 UserProfile fetchUserProfile() {
-  // Simula a recuperação do perfil de um usuário de um banco de dados externo
-  // Aqui, a suposição é de que "Alice" é um usuário existente
+  // Simulates retrieving a user profile from an external database
+  // Assumes that a user named "Alice" already exists
   return UserProfile(name: "Alice");
 }
 
@@ -48,10 +49,14 @@ class UserProfile {
   final String name;
   UserProfile({required this.name});
 }
-
 ```
 
-### Exemplo sem Mystery Guest
+**Problem:**
+The test implicitly assumes that a specific user exists in an external system. This dependency is not visible in the test, making it harder to understand and reproduce.
+
+---
+
+### Example without Mystery Guest
 
 ```dart
 import 'package:test/test.dart';
@@ -60,13 +65,17 @@ void main() {
   test('User Profile without Mystery Guest', () {
     final testUser = User(id: 1, name: "Alice");
     final userProfile = fetchUserProfile(testUser.id);
-    
-    expect(userProfile.name, equals(testUser.name), "Expected user name to be Alice for test user with ID 1");
+
+    expect(
+      userProfile.name,
+      equals(testUser.name),
+      reason: "Expected user name to match the explicitly defined test user",
+    );
   });
 }
 
 UserProfile fetchUserProfile(int userId) {
-  // Retorna um perfil de usuário simulado para o teste, sem dependência externa
+  // Returns a deterministic, test-specific user profile
   return UserProfile(id: userId, name: "Alice");
 }
 
@@ -81,37 +90,37 @@ class UserProfile {
   final String name;
   UserProfile({required this.id, required this.name});
 }
-
 ```
 
----
-
-## 🚀 Correções Sugeridas
-Para resolver o problema de **Mystery Guest**:
-
-- **Usar Dados Simulados (Mocking)**: Defina explicitamente os dados necessários no próprio teste, para que ele seja independente de recursos externos.
-- **Isolar o Ambiente de Teste**: Utilize dados específicos para o teste que não sejam dependentes de recursos de produção ou variáveis globais.
-- **Documentar Dependências**: Se um recurso externo é necessário, documente-o claramente no próprio teste ou em um setup de teste.
+**Solution:**
+Define all required data explicitly within the test or provide it through controlled test inputs. This removes hidden dependencies and improves test clarity.
 
 ---
 
-## 🌟 Exceções e Casos Especiais
-Em alguns cenários de integração ou testes de aceitação, onde a validação do sistema completo é o foco, o uso de dados reais ou dependências externas pode ser aceitável. Mesmo assim, é importante documentar e isolar essas dependências.
+## Recommended Fixes
+
+To mitigate **Mystery Guest**:
+
+* **Use Test-Specific Data or Mocks**: Explicitly define required data inside the test to avoid hidden dependencies.
+* **Isolate the Test Environment**: Ensure tests do not rely on production data, global state, or external configuration.
+* **Document Dependencies Explicitly**: If an external dependency is unavoidable, clearly document it within the test setup.
 
 ---
 
-## 🛠 Ferramentas de Detecção
-- **Ferramentas de Mocking e Injeção de Dependência**: Ferramentas como `mockito` podem ser usadas para criar versões simuladas dos dados, evitando dependências externas.
-- **Linters**: Ferramentas de lint podem ser configuradas para sinalizar referências a estados globais ou dependências externas em testes.
+## Exceptions and Special Cases
+
+In integration or acceptance testing scenarios, using real data or external dependencies may be acceptable. Even in these cases, dependencies should be isolated, well documented, and clearly distinguished from unit tests.
 
 ---
 
-## 📚 Referências e Estudos Relacionados
-- Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
-- Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
-- Van Deursen, A., et al. (2001). "Refactoring Test Code."
+## Note
+
+Avoiding **Mystery Guest** improves test transparency, reliability, and maintainability. Tests should be self-contained and explicit about all data and state they require.
 
 ---
 
-## 📝 Nota
-Evitar o **Mystery Guest** ajuda a garantir que os testes sejam independentes e confiáveis, facilitando a execução e manutenção, além de reduzir a possibilidade de erros devido a dependências externas.
+## References
+
+* Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*.
+* Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*.
+* Van Deursen, A., et al. (2001). "Refactoring Test Code."

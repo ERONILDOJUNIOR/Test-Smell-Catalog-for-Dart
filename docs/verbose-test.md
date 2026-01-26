@@ -1,33 +1,34 @@
 # Verbose Test
 
-## 🔍 Descrição do Problema
-**Verbose Test** ocorre quando um teste é excessivamente longo, complexo ou contém código desnecessário para realizar a verificação desejada. Esse tipo de teste pode dificultar a leitura, a manutenção e a atualização dos testes, além de aumentar o tempo de execução sem agregar valor significativo.
+## Description
 
-Em outras palavras, o **Verbose Test** é um teste que usa mais código do que o necessário para atingir o objetivo, tornando o código mais difícil de entender e de modificar.
+**Verbose Test** occurs when a test is excessively long, complex, or contains unnecessary code to perform the intended verification. Such tests reduce readability, hinder maintenance, and increase execution time without providing proportional value.
 
----
-
-## ⚠️ Sintomas e Impacto
-- **Baixa Legibilidade**: Testes longos e complexos são difíceis de ler, tornando difícil entender rapidamente o que está sendo testado.
-- **Manutenção Difícil**: A modificação de um teste verbose pode ser trabalhosa, pois é necessário compreender muitas partes do código antes de aplicar qualquer mudança.
-- **Desempenho Impactado**: Testes excessivamente longos podem aumentar o tempo total de execução dos testes, especialmente em grandes bases de código.
+In essence, a **Verbose Test** uses more code than necessary to achieve its objective, making the test harder to understand, modify, and evolve.
 
 ---
 
-## 🔑 Critérios de Identificação
-Para identificar o **Verbose Test**, procure por:
-- Testes que contêm muitas etapas ou verificações, quando uma abordagem mais simples poderia ser utilizada.
-- Testes que incluem detalhes desnecessários, como código redundante ou variáveis que não são utilizadas.
-- Testes com métodos de configuração ou limpeza (setup/teardown) que não são essenciais para o teste em si.
+## Symptoms and Impact
 
-### Detecção Automática
-Ferramentas de análise de código podem ser configuradas para detectar testes excessivamente longos ou complexos, com base no número de linhas ou na presença de código desnecessário.
+* **Low Readability**: Long and complex tests are difficult to read, making it hard to quickly understand what behavior is being verified.
+* **Maintenance Difficulty**: Updating a verbose test often requires understanding many unrelated details before applying changes.
+* **Performance Impact**: Excessively long tests can increase overall test execution time, especially in large test suites.
 
 ---
 
-## ✅ Exemplo de Código
+## Identification Criteria
 
-### Exemplo com Verbose Test
+To identify a **Verbose Test**, look for:
+
+* Tests with many steps or assertions where a simpler approach would suffice.
+* Tests that include unnecessary details, such as redundant code or unused variables.
+* Tests containing setup or teardown logic that is not essential to the behavior being verified.
+
+---
+
+## Example Code
+
+### Example with Verbose Test
 
 ```dart
 import 'package:flutter_test/flutter_test.dart';
@@ -37,7 +38,7 @@ class ShoppingCart {
   int get totalItems => items.length;
   int get totalPrice => items.fold(0, (sum, item) => sum + item.price);
   bool get isValid => totalItems > 0;
-  
+
   void add(Item item) {
     items.add(item);
   }
@@ -50,17 +51,16 @@ class Item {
   Item({required this.price});
 }
 
-// Exemplo com Verbose Test
 void testCalculateTotalPriceVerbose() {
   var cart = ShoppingCart();
-  
-  // Adicionando itens manualmente um a um
+
+  // Adding items one by one
   var item1 = Item(price: 10);
   var item2 = Item(price: 20);
   cart.add(item1);
   cart.add(item2);
 
-  // Realizando verificações detalhadas
+  // Multiple detailed checks
   expect(cart.totalItems, 2);
   expect(cart.totalPrice, 30);
   expect(cart.isValid, isTrue);
@@ -68,15 +68,18 @@ void testCalculateTotalPriceVerbose() {
   expect(cart.items.contains(item1), isTrue);
   expect(cart.items.contains(item2), isTrue);
 
-  // Limpeza manual de objetos (excessivo aqui)
+  // Manual cleanup (unnecessary in this context)
   item1 = null;
   item2 = null;
 }
-
-
 ```
 
-### Exemplo sem Verbose Test
+**Problem:**
+The test verifies multiple aspects that are not essential to the core objective (total price calculation). Redundant checks and unnecessary cleanup increase verbosity without improving test value.
+
+---
+
+### Example without Verbose Test
 
 ```dart
 import 'package:flutter_test/flutter_test.dart';
@@ -86,7 +89,7 @@ class ShoppingCart {
   int get totalItems => items.length;
   int get totalPrice => items.fold(0, (sum, item) => sum + item.price);
   bool get isValid => totalItems > 0;
-  
+
   void add(Item item) {
     items.add(item);
   }
@@ -99,7 +102,6 @@ class Item {
   Item({required this.price});
 }
 
-// Exemplo sem Verbose Test
 void testCalculateTotalPrice() {
   var cart = ShoppingCart();
   cart.add(Item(price: 10));
@@ -108,37 +110,37 @@ void testCalculateTotalPrice() {
   expect(cart.totalPrice, 30, reason: "Expected total price to be 30");
   expect(cart.totalItems, 2, reason: "Expected total items to be 2");
 }
-
 ```
 
----
-
-## 🚀 Correções Sugeridas
-Para resolver o **Verbose Test**:
-
-- **Simplifique o Código**: Evite adicionar verificações redundantes ou desnecessárias. Cada teste deve ser claro e focado no comportamento que está sendo verificado.
-- **Remova Código Redundante**: Utilize estruturas de configuração e limpeza (setup/teardown) de maneira eficaz para reduzir a duplicação de código.
-- **Use Assert Com Clareza**: Adicione mensagens aos asserts para tornar o propósito do teste mais claro, sem adicionar verificações desnecessárias.
+**Solution:**
+Focus the test on the essential behavior. Remove redundant checks and avoid unnecessary setup or cleanup logic.
 
 ---
 
-## 🌟 Exceções e Casos Especiais
-- Em testes complexos ou que envolvem várias interações, pode ser necessário ter mais etapas para verificar todos os comportamentos esperados. No entanto, deve-se sempre buscar clareza e simplicidade, evitando adicionar verificações que não agregam valor.
-  
----
+## Recommended Fixes
 
-## 🛠 Ferramentas de Detecção
-- **Linters**: Ferramentas como `dart analyze` podem ser configuradas para detectar testes com muitos asserts ou código excessivo.
-- **Plugins de Análise de Teste**: Ferramentas como SonarQube podem ser configuradas para identificar testes com muitos detalhes ou verificações redundantes.
+To mitigate **Verbose Test**:
 
----
-
-## 📚 Referências e Estudos Relacionados
-- Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
-- Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
-- Van Deursen, A., et al. (2001). "Refactoring Test Code."
+* **Simplify Test Logic**: Avoid redundant assertions and focus on the behavior under test.
+* **Remove Unnecessary Code**: Eliminate setup, cleanup, or variables that do not contribute to the test objective.
+* **Write Focused Assertions**: Use clear and minimal assertions that directly validate the expected behavior.
 
 ---
 
-## 📝 Nota
-Testes excessivamente verbosos são difíceis de manter e entender. Ao buscar simplicidade e clareza, você pode aumentar a qualidade dos testes e tornar o código mais sustentável a longo prazo.
+## Exceptions and Special Cases
+
+In tests involving complex workflows or multiple interactions, additional steps may be required. However, clarity and simplicity should always be prioritized, and only behaviorally relevant assertions should be included.
+
+---
+
+## Note
+
+Overly verbose tests are harder to understand and maintain. By prioritizing simplicity and focus, test quality improves and long-term maintainability is enhanced.
+
+---
+
+## References
+
+* Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*.
+* Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*.
+* Van Deursen, A., et al. (2001). "Refactoring Test Code."

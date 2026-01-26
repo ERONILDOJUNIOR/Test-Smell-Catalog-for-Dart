@@ -1,95 +1,109 @@
 # Sensitive Equality
 
-## 🔍 Descrição do Problema
-**Sensitive Equality** ocorre quando um teste depende fortemente de comparações exatas de valores que podem ser facilmente alterados, como strings ou números com formatos específicos, sem levar em consideração pequenas variações que podem ser aceitáveis. Esse tipo de teste tende a falhar com frequência devido a diferenças triviais que não afetam o comportamento funcional do código, como diferenças de capitalização, espaços ou precisão decimal.
+## Description
+
+**Sensitive Equality** occurs when a test relies heavily on exact value comparisons, such as strings or numbers with specific formats, without accounting for minor variations that may be acceptable. This type of test is prone to frequent failures due to trivial differences that do not affect the functional behavior of the code, such as differences in capitalization, whitespace, or decimal precision.
 
 ---
 
-## ⚠️ Sintomas e Impacto
-- **Falhas Desnecessárias**: Testes podem falhar devido a pequenas variações nos dados, que são irrelevantes para o comportamento real que o teste deveria validar.
-- **Baixa Flexibilidade**: Testes que usam igualdade sensível podem ser difíceis de manter, especialmente se o comportamento do sistema muda levemente.
-- **Resultados Inconsistentes**: Pode levar a falhas intermitentes quando a saída varia ligeiramente entre execuções, o que dificulta a depuração.
+## Symptoms and Impact
+
+* **Unnecessary Failures**: Tests may fail due to minor variations in data, which are irrelevant to the behavior the test intends to validate.
+* **Low Flexibility**: Tests that use sensitive equality are harder to maintain, especially if the system behavior changes slightly.
+* **Inconsistent Results**: Can lead to intermittent failures when output slightly varies between executions, complicating debugging.
 
 ---
 
-## 🔑 Critérios de Identificação
-Para identificar **Sensitive Equality**, procure por:
-- Testes que comparam diretamente strings, números ou listas sem tolerância para variações insignificantes.
-- Comparações rígidas que causam falhas com diferenças de capitalização, espaçamento ou precisão decimal.
+## Identification Criteria
 
-### Detecção Automática
-Alguns linters ou ferramentas de análise podem ser configurados para destacar comparações diretas em strings ou números onde tolerâncias são recomendadas.
+To identify **Sensitive Equality**, look for:
+
+* Tests that directly compare strings, numbers, or lists without tolerance for insignificant variations.
+* Rigid comparisons that fail due to differences in capitalization, spacing, or numeric precision.
 
 ---
 
-## ✅ Exemplo de Código
+## Example Code
 
-### Exemplo com Sensitive Equality
+### Example with Sensitive Equality
 
 ```dart
 import 'package:test/test.dart';
 
+class Point {
+  final int x;
+  final int y;
+
+  Point(this.x, this.y);
+
+  @override
+  String toString() => 'Point(x: $x, y: $y)';
+}
+
 void main() {
-  test('Sensitive Equality in User Greeting', () {
-    final greeting = generateGreeting('Alice');
-    expect(greeting, equals('Hello, Alice!'), "Greeting should match exactly 'Hello, Alice!'");
+  test('Sensitive Equality using toString', () {
+    final point = Point(1, 2);
+    // This test will fail if formatting changes, e.g., extra space or different toString
+    expect(point.toString(), equals('Point(x: 1, y: 2)'));
   });
 }
-
-String generateGreeting(String name) {
-  return 'Hello, $name!'; // Possível variação no formato, como espaços extras
-}
-
 ```
 
-### Exemplo sem Sensitive Equality
+Problem: This test is highly sensitive to formatting changes in toString(). Any small modification (like spacing or apitalization) will make the test fail, even though the object’s data is correct.
+
+### Example without Sensitive Equality
 
 ```dart
 import 'package:test/test.dart';
 
+class Point {
+  final int x;
+  final int y;
+
+  Point(this.x, this.y);
+
+  @override
+  String toString() => 'Point(x: $x, y: $y)';
+}
+
 void main() {
-  test('Insensitive Equality in User Greeting', () {
-    final greeting = generateGreeting('Alice');
-    expect(greeting.toLowerCase().trim(), equals('hello, alice!'), "Greeting should match expected format");
+  test('Insensitive Equality using object properties', () {
+    final point = Point(1, 2);
+    // Compare the actual data instead of string representation
+    expect(point.x, equals(1));
+    expect(point.y, equals(2));
   });
 }
 
-String generateGreeting(String name) {
-  return ' Hello, $name! '; // Pode ter espaços extras ou capitalização diferente
-}
-
 ```
+Solution: Compare the object properties directly, not the string representation. This makes the test resilient to formatting changes in toString().
 
 ---
 
-## 🚀 Correções Sugeridas
-Para resolver o **Sensitive Equality**:
+## Recommended Fixes
 
-- **Use Comparações Insensíveis**: Utilize métodos que normalizem os valores antes de compará-los, como `toLowerCase()` para strings ou arredondamento para números.
-- **Use Tolerâncias**: Ao comparar números, considere uma margem de erro aceitável para evitar falhas devido a pequenas diferenças de precisão.
-- **Assertivas Flexíveis**: Em vez de uma comparação estrita, utilize métodos que validem a presença de elementos-chave, mas que permitam pequenas variações.
+To mitigate **Sensitive Equality**:
 
----
-
-## 🌟 Exceções e Casos Especiais
-Em algumas situações, como testes que verificam valores específicos de um protocolo de comunicação, pode ser necessário realizar comparações exatas. Nesse caso, documente bem o teste para indicar a necessidade da precisão.
+* **Use Insensitive Comparisons**: Normalize values before comparison, e.g., `toLowerCase()` for strings or rounding for numbers.
+* **Apply Tolerances**: When comparing numeric values, allow an acceptable margin of error to prevent failures caused by minor precision differences.
+* **Flexible Assertions**: Instead of strict equality, validate the presence of key elements while permitting minor variations.
 
 ---
 
-## 🛠 Ferramentas de Detecção
-- **Bibliotecas de Teste com Comparação Flexível**: Ferramentas como `expect` no Dart, que permitem o uso de correspondências (matchers) mais flexíveis.
-- **Análise de Precisão**: Ferramentas como SonarQube podem ajudar a detectar comparações diretas onde tolerâncias podem ser recomendadas.
+## Exceptions and Special Cases
+
+In certain contexts, such as testing protocol-specific values, exact comparisons may be necessary. In these cases, document the test explicitly to indicate why strict equality is required.
 
 ---
 
-## 📚 Referências e Estudos Relacionados
-- Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
-- Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
-- Van Deursen, A., et al. (2001). "Refactoring Test Code."
+## References
+
+* Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*.
+* Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*.
+* Van Deursen, A., et al. (2001). "Refactoring Test Code."
 
 ---
 
-## 📝 Nota
-Evitar **Sensitive Equality** aumenta a resiliência dos testes, garantindo que falhas só ocorram para diferenças significativas e reduzindo o número de falsos positivos no teste.
+## Note
 
----
+Avoiding **Sensitive Equality** increases test resilience, ensuring failures occur only for meaningful differences and reducing the occurrence of false positives.

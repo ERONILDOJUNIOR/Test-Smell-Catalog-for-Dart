@@ -1,97 +1,94 @@
 # Widget Setup Smell
 
-## ✅ Descrição do Problema
+## Description of the Problem
 
-O **Widget Setup Smell** ocorre quando configurações ou inicializações de widgets são repetidas de forma desnecessária em múltiplos testes. Isso aumenta a complexidade, reduz a clareza do código e dificulta a manutenção dos testes. 
-
----
-
-## ✅ Sintomas e Impacto
-
-- **Sintomas**:
-  - Código duplicado para configurar widgets em vários testes.
-  - Testes longos e difíceis de entender devido a setups extensos.
-  - Dificuldade em atualizar testes quando o widget ou sua configuração muda.
-
-- **Impacto**:
-  - Reduz a clareza e a legibilidade dos testes.
-  - Aumenta o esforço de manutenção, especialmente em grandes bases de código.
-  - Dificulta a reutilização de configurações comuns.
+The **Widget Setup Smell** occurs when widget configurations or initializations are unnecessarily repeated across multiple tests. This increases complexity, reduces code clarity, and makes test maintenance more difficult.
 
 ---
 
-## ✅ Critérios de Identificação
+## Symptoms and Impact
 
-- Repetição de blocos de código idênticos ou muito semelhantes ao configurar widgets nos testes.
-- Configurações que poderiam ser extraídas para métodos auxiliares ou funções de utilidade.
+* **Symptoms**:
+
+  * Duplicate code to set up widgets in multiple tests.
+  * Long and hard-to-read tests due to extensive setup.
+  * Difficulties updating tests when the widget or its configuration changes.
+
+* **Impact**:
+
+  * Reduces clarity and readability of tests.
+  * Increases maintenance effort, especially in large codebases.
+  * Hinders the reuse of common configurations.
 
 ---
 
-## ✅ Exemplo de Código
+## Identification Criteria
 
-### Exemplo com Widget Setup Smell
+* Repeated blocks of code that are identical or very similar when configuring widgets in tests.
+* Configurations that could be extracted into helper methods or utility functions.
 
-Arquivo: `widget_setup_smell_with_smell.dart`
+---
+
+## Code Examples
+
+### Example with Widget Setup Smell
 
 ```dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('Teste de título do widget 1', (WidgetTester tester) async {
-    // Configuração do widget repetida
+  testWidgets('Widget title test 1', (WidgetTester tester) async {
+    // Repeated widget setup
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: Text('Teste de título 1'),
+          body: Text('Widget title 1'),
         ),
       ),
     );
 
-    expect(find.text('Teste de título 1'), findsOneWidget);
+    expect(find.text('Widget title 1'), findsOneWidget);
   });
 
-  testWidgets('Teste de título do widget 2', (WidgetTester tester) async {
-    // Configuração do widget repetida
+  testWidgets('Widget title test 2', (WidgetTester tester) async {
+    // Repeated widget setup
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: Text('Teste de título 2'),
+          body: Text('Widget title 2'),
         ),
       ),
     );
 
-    expect(find.text('Teste de título 2'), findsOneWidget);
+    expect(find.text('Widget title 2'), findsOneWidget);
   });
 
-  testWidgets('Teste de botão', (WidgetTester tester) async {
-    // Configuração do widget repetida
+  testWidgets('Button test', (WidgetTester tester) async {
+    // Repeated widget setup
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
           body: ElevatedButton(
             onPressed: () {},
-            child: Text('Pressione'),
+            child: Text('Press'),
           ),
         ),
       ),
     );
 
-    expect(find.text('Pressione'), findsOneWidget);
+    expect(find.text('Press'), findsOneWidget);
   });
 }
-
 ```
 
-### Exemplo sem Widget Setup Smell
-
-Arquivo: `widget_setup_smell_without_smell.dart`
+### Example without Widget Setup Smell
 
 ```dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-// Método auxiliar para configurar o widget
+// Helper method to build test widgets
 Widget buildTestWidget({required Widget child}) {
   return MaterialApp(
     home: Scaffold(
@@ -101,67 +98,60 @@ Widget buildTestWidget({required Widget child}) {
 }
 
 void main() {
-  testWidgets('Teste de título do widget 1', (WidgetTester tester) async {
-    // Reutilizando o método auxiliar
-    await tester.pumpWidget(buildTestWidget(child: Text('Teste de título 1')));
-
-    expect(find.text('Teste de título 1'), findsOneWidget);
+  testWidgets('Widget title test 1', (WidgetTester tester) async {
+    await tester.pumpWidget(buildTestWidget(child: Text('Widget title 1')));
+    expect(find.text('Widget title 1'), findsOneWidget);
   });
 
-  testWidgets('Teste de título do widget 2', (WidgetTester tester) async {
-    // Reutilizando o método auxiliar
-    await tester.pumpWidget(buildTestWidget(child: Text('Teste de título 2')));
-
-    expect(find.text('Teste de título 2'), findsOneWidget);
+  testWidgets('Widget title test 2', (WidgetTester tester) async {
+    await tester.pumpWidget(buildTestWidget(child: Text('Widget title 2')));
+    expect(find.text('Widget title 2'), findsOneWidget);
   });
 
-  testWidgets('Teste de botão', (WidgetTester tester) async {
-    // Reutilizando o método auxiliar
+  testWidgets('Button test', (WidgetTester tester) async {
     await tester.pumpWidget(buildTestWidget(
       child: ElevatedButton(
         onPressed: () {},
-        child: Text('Pressione'),
+        child: Text('Press'),
       ),
     ));
-
-    expect(find.text('Pressione'), findsOneWidget);
+    expect(find.text('Press'), findsOneWidget);
   });
 }
-
 ```
 
 ---
 
-## ✅ Correções Sugeridas
+## Suggested Fixes
 
-- **Extração de Métodos**: Crie métodos auxiliares para encapsular configurações repetitivas de widgets.
-- **Reutilização de Configurações**: Utilize padrões de projeto ou utilitários de teste para evitar duplicação.
-- **Configuração Modular**: Implemente estruturas flexíveis que permitam reconfigurar widgets com facilidade.
-
----
-
-## ✅ Exceções e Casos Especiais
-
-- Se os widgets requerem configurações altamente específicas e diferentes entre os testes, pode ser mais apropriado configurar individualmente.
-- Evite generalizar configurações a ponto de prejudicar a clareza e o propósito de cada teste.
+* **Extract Methods**: Create helper methods to encapsulate repeated widget configurations.
+* **Reuse Configurations**: Use design patterns or testing utilities to avoid duplication.
+* **Modular Setup**: Implement flexible structures that allow easy reconfiguration of widgets.
 
 ---
 
-## ✅ Ferramentas de Detecção
+## Exceptions and Special Cases
 
-- **Code Linters**: Ferramentas como o `dart_analyze` podem ajudar a identificar código duplicado.
-- **Análise Manual**: Revisões de código focadas em padrões de repetição.
-
----
-
-## ✅ Referências e Estudos Relacionados
-
-- [Documentação do Flutter sobre Testes](https://docs.flutter.dev/cookbook/testing)
-- Artigo: *"Optimizing Widget Testing in Flutter"* - [Medium](https://medium.com/)
-- Livro: *"Refactoring in Flutter Testing"* - edição técnica.
+* If widgets require highly specific configurations that differ across tests, it may be more appropriate to configure them individually.
+* Avoid generalizing setups to the point where the clarity and intent of each test are compromised.
 
 ---
 
-## ✅ Nota
+## Detection Tools
 
-O **Widget Setup Smell** é um dos problemas mais comuns em projetos Flutter, mas pode ser resolvido facilmente com boas práticas de refatoração. Isso melhora a legibilidade e reduz o esforço de manutenção.
+* **Code Linters**: Tools like `dart_analyze` can help identify duplicated code.
+* **Manual Analysis**: Code reviews focused on repeated patterns.
+
+---
+
+## References and Related Studies
+
+* [Flutter Testing Documentation](https://docs.flutter.dev/cookbook/testing)
+* Article: *"Optimizing Widget Testing in Flutter"* - [Medium](https://medium.com/)
+* Book: *"Refactoring in Flutter Testing"* - technical edition.
+
+---
+
+## Note
+
+The **Widget Setup Smell** is a common problem in Flutter projects but can be easily resolved with good refactoring practices. Doing so improves readability and reduces maintenance effort.

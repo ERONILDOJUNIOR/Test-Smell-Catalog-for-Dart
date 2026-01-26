@@ -1,157 +1,94 @@
 # Redundant Assertion
 
-## 🔍 Descrição do Problema
-**Redundant Assertion** ocorre quando um método de teste contém assertions cujos resultados são sempre verdadeiros ou sempre falsos. Um teste deve retornar um resultado binário indicando se o resultado pretendido está correto ou não, e não deve retornar a mesma saída independentemente da entrada. Além disso, afirmações redundantes podem reduzir a clareza e o desempenho dos testes, pois introduzem verificações desnecessárias.
+## Description
+
+**Redundant Assertion** occurs when a test contains assertions whose outcomes are always true or always false, regardless of the system under test. In such cases, the test result does not meaningfully reflect the behavior being validated.
+
+A test should provide a binary outcome that depends on the correctness of the system behavior. Assertions that deterministically fail or pass undermine this purpose and reduce the diagnostic value of the test.
 
 ---
 
-## ⚠️ Sintomas e Impacto
-- **Desempenho Degradado**: Afirmações duplicadas podem aumentar o tempo de execução dos testes, especialmente em grandes conjuntos de testes.
-- **Manutenção Dificultada**: Testes com lógica redundante são mais difíceis de atualizar, uma vez que qualquer alteração precisa ser feita em múltiplas afirmações semelhantes.
+## Symptoms and Impact
+
+* **Meaningless Test Results**: The test outcome is predetermined and does not depend on the tested behavior.
+* **Reduced Test Clarity**: Legitimate assertions become irrelevant when the test always fails or always passes.
+* **Maintenance Overhead**: Developers may waste time debugging failures that are not related to the actual logic under test.
 
 ---
 
-## 🔑 Critérios de Identificação
-Para identificar o **Redundant Assertion**, procure por:
-- Teste contém assertions cujos resultados são sempre verdadeiros ou sempre falsos
-- Afirmações que verificam a mesma condição várias vezes dentro do mesmo teste.
+## Identification Criteria
+
+To identify **Redundant Assertion**, look for:
+
+* Assertions that are always false or always true (e.g., `expect(true, equals(false))`).
+* Tests where the final assertion guarantees failure, regardless of previous assertions or interactions.
 
 ---
 
-## ✅ Exemplo de Código
+## Example Code
 
-### Exemplo com Redundant Assertion
+### Example with Redundant Assertion
 
 ```dart
-import 'package:test/test.dart';
+test("should open menu on click", compileComponent(html(), {}, (shadowRoot) {
+  print("this never logs :(");
+  shadowRoot.click();
+  digest();
 
-void main() {
-  final cart = ShoppingCart();
-  cart.add(Item(price: 10));
-  cart.add(Item(price: 20));
+  var toggleableMenu = shadowRoot.querySelector('.dropdown-menu');
+  expect(toggleableMenu.style.display, equals('none'));
 
-  test('Redundant Assertion Test 01', () {
-    expect(cart.getTotalPrice(), equals(30));
-    expect(cart.getTotalPrice(), equals(30));  // Repetição desnecessária
-  });
-
-  test('Redundant Assertion Test 02', () {
-    expect(cart.getTotalItems(), equals(2));
-    expect(cart.getTotalItems(), equals(2));  // Repetição desnecessária
-  });
-}
-
-class ShoppingCart {
-  final List<Item> items = [];
-
-  void add(Item item) {
-    items.add(item);
-  }
-
-  int getTotalItems() {
-    return items.length;
-  }
-
-  double getTotalPrice() {
-    double total = 0;
-
-    for (var item in items) {
-      total += item.price; 
-    }
-
-    return total;
-  }
-}
-
-class Item {
-  final double price;
-
-  Item({
-    required this.price
-  });
-}
-
+  // This assertion always fails, making the entire test meaningless
+  expect(true, equals(false));
+}));
 ```
 
-### Exemplo sem Redundant Assertion
+**Problem:**
+The final assertion is deterministically false. As a result, the test will always fail, regardless of whether the menu behavior is correct. All previous assertions and interactions become irrelevant.
+
+---
+
+### Example without Redundant Assertion
 
 ```dart
-import 'package:test/test.dart';
+test("should open menu on click", compileComponent(html(), {}, (shadowRoot) {
+  shadowRoot.click();
+  digest();
 
-void main() {
-  final cart = ShoppingCart();
-  cart.add(Item(price: 10));
-  cart.add(Item(price: 20));
-
-  test('Redundant Assertion Test 01', () {
-    expect(cart.getTotalPrice(), equals(30));
-  });
-
-  test('Redundant Assertion Test 02', () {
-    expect(cart.getTotalItems(), equals(2));
-  });
-}
-
-class ShoppingCart {
-  final List<Item> items = [];
-
-  void add(Item item) {
-    items.add(item);
-  }
-
-  int getTotalItems() {
-    return items.length;
-  }
-
-  double getTotalPrice() {
-    double total = 0;
-
-    for (var item in items) {
-      total += item.price; 
-    }
-
-    return total;
-  }
-}
-
-class Item {
-  final double price;
-
-  Item({
-    required this.price
-  });
-}
-
+  var toggleableMenu = shadowRoot.querySelector('.dropdown-menu');
+  expect(toggleableMenu.style.display, equals('none'));
+}));
 ```
 
----
-
-## 🚀 Correções Sugeridas
-Para resolver o **Redundant Assertion**:
-
-- **Remover Afirmações Duplicadas**: Exclua asserts redundantes que verificam a mesma condição.
-- **Consolidar Verificações**: Combine as condições de verificação em uma única afirmação quando apropriado.
+**Solution:**
+Remove assertions that do not depend on the system under test. Each assertion should validate meaningful behavior derived from the test execution.
 
 ---
 
-## 🌟 Exceções e Casos Especiais
-Em alguns cenários de teste com lógica complexa, afirmações semelhantes podem ser necessárias para verificar estados em diferentes etapas do processo. No entanto, essas exceções devem ser cuidadosamente documentadas.
+## Recommended Fixes
+
+To mitigate **Redundant Assertion**:
+
+* **Remove Deterministic Assertions**: Eliminate assertions that always evaluate to the same result.
+* **Ensure Behavioral Relevance**: Every assertion should depend on the outcome of the test actions.
+* **Keep Assertions Intentional**: Assertions should clearly express the expected behavior being validated.
 
 ---
 
-## 🛠 Ferramentas de Detecção
-- **Linters e Ferramentas de Análise de Código**: Ferramentas como `dart analyze` e SonarQube podem ser configuradas para identificar afirmações duplicadas.
-- **Code Smell Detectors**: Ferramentas especializadas em detectar code smells em testes, como SonarQube, podem ser usadas para detectar redundâncias.
+## Exceptions and Special Cases
+
+In rare debugging scenarios, temporary assertions may be added to force test failures. However, such assertions must be removed before committing the test, as they invalidate its purpose.
 
 ---
 
-## 📝 Nota
-O **Redundant Assertion** pode ser especialmente problemático em grandes conjuntos de testes. Remover afirmações duplicadas ajuda a manter o código de teste limpo e eficiente.
+## Note
+
+**Redundant Assertion** undermines the credibility of test suites. Removing assertions that always pass or fail ensures that test results accurately reflect the correctness of the system behavior.
 
 ---
 
-## 📚 Referências e Estudos Relacionados
-- Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
-- Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
-- Van Deursen, A., et al. (2001). "Refactoring Test Code."
+## References
 
+* Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*.
+* Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*.
+* Van Deursen, A., et al. (2001). "Refactoring Test Code."

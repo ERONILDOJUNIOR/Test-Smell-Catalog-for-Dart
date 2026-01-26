@@ -1,30 +1,31 @@
 # Resource Optimism
 
-## 🔍 Descrição do Problema
-**Resource Optimism** ocorre quando um teste assume que recursos externos, como arquivos, bancos de dados, ou conexões de rede, estarão sempre disponíveis e acessíveis. Essa suposição otimista pode resultar em falhas imprevisíveis e intermitentes, especialmente em ambientes onde os recursos externos não são garantidos. Esse tipo de teste pode ser difícil de depurar e manter, pois depende de fatores externos fora do controle imediato do código de teste.
+## Description
+
+**Resource Optimism** occurs when a test assumes that external resources, such as files, databases, or network connections, will always be available and accessible. This optimistic assumption can lead to unpredictable and intermittent failures, particularly in environments where external resources are not guaranteed. Such tests can be difficult to debug and maintain because they depend on factors outside the immediate control of the test code.
 
 ---
 
-## ⚠️ Sintomas e Impacto
-- **Falhas Intermitentes**: O teste pode falhar inesperadamente quando o recurso externo não está disponível, dificultando a identificação da causa.
-- **Baixa Confiabilidade**: Testes que dependem de recursos externos tendem a ser menos confiáveis e podem introduzir incertezas no processo de CI/CD.
-- **Dificuldade na Manutenção**: Requer um ambiente específico para ser executado corretamente, tornando a automação e a manutenção mais complexas.
+## Symptoms and Impact
+
+* **Intermittent Failures**: Tests may fail unexpectedly when the external resource is unavailable, complicating root cause analysis.
+* **Low Reliability**: Tests that depend on external resources tend to be less reliable and may introduce uncertainty in CI/CD pipelines.
+* **Maintenance Difficulty**: Requires a specific environment to execute correctly, increasing complexity for automation and long-term maintenance.
 
 ---
 
-## 🔑 Critérios de Identificação
-Para identificar **Resource Optimism**, procure por:
-- Testes que dependem de arquivos externos, conexões de rede, bancos de dados, ou qualquer outro recurso fora do processo de teste.
-- Falhas de teste que ocorrem aleatoriamente ou intermitentemente devido à indisponibilidade de recursos externos.
+## Identification Criteria
 
-### Detecção Automática
-Alguns linters e ferramentas de análise de código podem ajudar a identificar o uso de recursos externos em testes e sugerir que eles sejam evitados.
+To identify **Resource Optimism**, look for:
+
+* Tests that rely on external files, network connections, databases, or any resource outside the testing process.
+* Test failures that occur randomly or intermittently due to resource unavailability.
 
 ---
 
-## ✅ Exemplo de Código
+## Code Examples
 
-### Exemplo com Resource Optimism
+### Example with Resource Optimism
 
 ```dart
 import 'dart:io';
@@ -32,59 +33,60 @@ import 'package:test/test.dart';
 
 void main() {
   test('File Read with Resource Optimism', () {
-    final file = File('config.txt');  // Depende da presença de um arquivo externo
+    final file = File('config.txt');  // Depends on the presence of an external file
     final content = file.readAsStringSync();
     expect(content.contains('settings'), isTrue, "File content should contain settings information");
   });
 }
-
 ```
 
-### Exemplo sem Resource Optimism
+**Problem:** This test assumes the external file exists. If the file is missing or inaccessible, the test fails, even though the functionality may be correct.
+
+---
+
+### Example without Resource Optimism
 
 ```dart
 import 'package:test/test.dart';
 
 void main() {
   test('File Read without Resource Optimism', () {
-    // Usa um mock para simular a presença do arquivo
+    // Uses a mock to simulate the presence of the file
     final fileContent = 'settings: true';
     expect(fileContent.contains('settings'), isTrue, "File content should contain settings information");
   });
 }
-
 ```
 
----
-
-## 🚀 Correções Sugeridas
-Para resolver o **Resource Optimism**:
-
-- **Use Mocks**: Substitua os recursos externos por mocks que simulem o comportamento dos recursos sem depender deles.
-- **Isolamento de Dependências**: Garanta que os testes possam ser executados independentemente da disponibilidade de recursos externos.
-- **Configuração Alternativa**: Em casos onde o acesso ao recurso externo é necessário, configure um fallback ou trate exceções de modo a melhorar a resiliência.
+**Solution:** Replace external dependencies with **mocks** or **simulated data** to ensure tests are deterministic and independent of the environment.
 
 ---
 
-## 🌟 Exceções e Casos Especiais
-Em testes de integração ou end-to-end (E2E), é comum usar recursos externos. No entanto, esses testes devem ser bem documentados e, idealmente, não serem executados em todos os ciclos de CI/CD.
+## Recommended Fixes
+
+To mitigate **Resource Optimism**:
+
+* **Use Mocks**: Replace external resources with mocks that simulate the resource behavior without relying on them.
+* **Dependency Isolation**: Ensure tests can execute independently of external resource availability.
+* **Alternative Configuration**: When access to the external resource is necessary, provide a fallback or handle exceptions to improve test resilience.
 
 ---
 
-## 🛠 Ferramentas de Detecção
-- **Test Frameworks com Suporte a Mocks**: Ferramentas como Mockito para Dart permitem a criação de mocks para substituir recursos externos.
-- **Ferramentas de Integração Contínua (CI)**: Configurar pipelines para alertar sobre falhas intermitentes pode ajudar a identificar testes que dependem de recursos externos.
+## Exceptions and Special Cases
+
+In integration or end-to-end (E2E) tests, it is common to use external resources. However, these tests should be well documented and, ideally, not executed in every CI/CD cycle.
 
 ---
 
-## 📚 Referências e Estudos Relacionados
-- Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*
-- Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*
-- Van Deursen, A., et al. (2001). "Refactoring Test Code."
+## References
+
+* Fowler, M. (1999). *Refactoring: Improving the Design of Existing Code*.
+* Meszaros, G. (2007). *xUnit Test Patterns: Refactoring Test Code*.
+* Van Deursen, A., et al. (2001). "Refactoring Test Code."
 
 ---
 
-## 📝 Nota
-Evitar **Resource Optimism** torna os testes mais confiáveis e fáceis de depurar. Dependências externas devem ser limitadas, especialmente em testes de unidade, para garantir a consistência do ambiente de testes.
+## Note
 
----
+Avoiding **Resource Optimism** increases test reliability and simplifies debugging. External dependencies should be minimized, especially in unit tests, to ensure a consistent testing environment.
+
