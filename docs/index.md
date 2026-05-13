@@ -88,6 +88,12 @@ The following approach is recommended when using this catalog:
 20. [Unknown Test](unknown-test.md)  
 21. [Verbose Test](verbose-test.md)
 
+### Dart/Flutter-Specific Smells *(identified during empirical and validation phases)*
+
+22. [Expected Resolution Omission (ERO)](expected-resolution-omission.md)  
+23. [Residual State](residual-state.md)  
+24. [Widget Setup Smell](widget-setup.md)
+
 ---
 
 ## 6. Contributions
