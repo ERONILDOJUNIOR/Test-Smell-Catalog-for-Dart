@@ -2,11 +2,11 @@
 
 ## Problem Description
 
-**Residual State** is a test smell that occurs when a test modifies shared global or singleton state — such as static class fields, service locator instances (e.g., `GetIt`), or framework-level registries — without restoring that state after execution. This causes subsequent tests to operate under unexpected preconditions, leading to order-dependent failures, intermittent results, and tests that are difficult to reason about in isolation.
+**Residual State** is a test smell that occurs when a test modifies shared global or singleton state, such as static class fields, service locator instances (e.g., `GetIt`), or framework-level registries, without restoring that state after execution. This causes subsequent tests to operate under unexpected preconditions, leading to order-dependent failures, intermittent results, and tests that are difficult to reason about in isolation.
 
 In the Flutter ecosystem, Residual State is particularly prevalent because widget-level state (e.g., `ChangeNotifier`, `StreamController`, `TextEditingController`) is often instantiated at class-level scope or via `setUpAll`, and developers frequently omit the corresponding `dispose()` or cleanup call in `tearDown`.
 
-This smell was identified during the analysis of real-world Flutter projects during the validation phase of this research, where it was observed that certain test files produced inconsistent results depending on the execution order — a classic symptom of state pollution across test boundaries.
+This smell was identified during the analysis of real-world Flutter projects during the validation phase of this research, where it was observed that certain test files produced inconsistent results depending on the execution order, a classic symptom of state pollution across test boundaries.
 
 ---
 
@@ -21,7 +21,7 @@ This smell was identified during the analysis of real-world Flutter projects dur
 
 * **Impact**:
 
-  * Severely reduces **test independence** — a fundamental property of a reliable test suite.
+  * Severely reduces **test independence**, a fundamental property of a reliable test suite.
   * Leads to **flaky tests**: tests that pass individually but fail when run as part of the full suite.
   * Increases **debugging complexity**, as the root cause of a failure lies in a different test than the one that fails.
   * May cause **memory leaks** or resource exhaustion in long test runs due to unreleased `StreamController`, `AnimationController`, or platform channels.
@@ -128,7 +128,6 @@ test('example with addTearDown', () {
 
 ## Detection Tools
 
-* **DNose 2.1.0**: Implements a static AST-based detector that identifies manipulations of static variables and known singleton patterns (e.g., `GetIt`) within test scopes without a corresponding `tearDown` cleanup call.
 * **`dart analyze`**: Can detect some unreferenced disposable objects when combined with custom lint rules.
 * **Manual code review**: Inspection of `setUp`/`tearDown` pairing and shared variable usage across test blocks.
 
@@ -151,4 +150,4 @@ This smell was identified as a distinct Dart/Flutter-specific pattern during the
 
 ## Note
 
-**Residual State** is one of three test smells identified specifically for the Dart/Flutter ecosystem in this research, alongside *Expected Resolution Omission (ERO)* and *Widget Setup Smell*. Its high prevalence in Flutter projects is linked to the stateful, lifecycle-driven nature of the framework, where developers must manually manage resource disposal — a responsibility that is easily overlooked under test conditions.
+**Residual State** is one of three test smells identified specifically for the Dart/Flutter ecosystem in this research, alongside *Expected Resolution Omission (ERO)* and *Widget Setup Smell*. Its high prevalence in Flutter projects is linked to the stateful, lifecycle-driven nature of the framework, where developers must manually manage resource disposal, a responsibility that is easily overlooked under test conditions.
